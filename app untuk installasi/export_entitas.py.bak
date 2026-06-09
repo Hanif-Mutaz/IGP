@@ -1,0 +1,885 @@
+import sys, json, io
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
+# ── Color Palette ──────────────────────────────────────────────
+C_TITLE_BG   = '0D2137'
+C_TITLE_FG   = 'FAC775'
+C_HEADER_BG  = '1B3A5C'
+C_HEADER_FG  = 'FFFFFF'
+C_SUB_BG     = '2E5F8E'
+C_SUB_FG     = 'FFFFFF'
+C_SUB2_BG    = '3A7ABE'
+C_ACCENT1    = '5DCAA5'   # hijau – positif
+C_ACCENT2    = 'F09595'   # merah – negatif
+C_ACCENT3    = 'FAC775'   # gold
+C_ROW_EVEN   = 'F0F6FF'
+C_ROW_ODD    = 'FFFFFF'
+C_TOTAL_BG   = 'D4E4F0'
+C_BORDER     = 'B8C8D8'
+
+IDR = '#,##0'
+
+def rp(n):
+    try: return int(n or 0)
+    except: return 0
+
+def thin_border():
+    s = Side(style='thin', color=C_BORDER)
+    return Border(left=s, right=s, top=s, bottom=s)
+
+def medium_border():
+    s = Side(style='medium', color='8AABBF')
+    return Border(left=s, right=s, top=s, bottom=s)
+
+def _cell(ws, row, col, val='', fmt=None, fg='000000', bg=None, bold=False,
+          align='center', valign='center', wrap=False, border='thin', size=9):
+    cell = ws.cell(row=row, column=col, value=val)
+    cell.font = Font(name='Arial', size=size, bold=bold, color=fg)
+    cell.alignment = Alignment(horizontal=align, vertical=valign, wrap_text=wrap)
+    cell.border = thin_border() if border == 'thin' else medium_border()
+    if fmt: cell.number_format = fmt
+    if bg:  cell.fill = PatternFill('solid', fgColor=bg)
+    return cell
+
+def header(ws, row, col, val, bg=C_HEADER_BG, fg=C_HEADER_FG, bold=True,
+           size=9, wrap=True, align='center'):
+    return _cell(ws, row, col, val, fg=fg, bg=bg, bold=bold, size=size,
+                 wrap=wrap, align=align, border='medium')
+
+def data(ws, row, col, val, fmt=None, fg='1B3A5C', bg=None,
+         bold=False, align='center'):
+    bg = bg or (C_ROW_EVEN if row % 2 == 0 else C_ROW_ODD)
+    return _cell(ws, row, col, val, fmt=fmt, fg=fg, bg=bg, bold=bold,
+                 align=align, border='thin')
+
+def money_cell(ws, row, col, val, bg=None):
+    bg = bg or (C_ROW_EVEN if row % 2 == 0 else C_ROW_ODD)
+    fg = C_ACCENT1 if rp(val) >= 0 else C_ACCENT2
+    return _cell(ws, row, col, rp(val), fmt=IDR, fg=fg, bg=bg,
+                 align='right', border='thin')
+
+def merge(ws, r1, c1, r2, c2):
+    ws.merge_cells(start_row=r1, start_column=c1, end_row=r2, end_column=c2)
+
+def set_col_width(ws, mapping):
+    for col, w in mapping.items():
+        ws.column_dimensions[get_column_letter(col) if isinstance(col, int) else col].width = w
+
+# ── Collect all unique inventory item names across all loss logs ──
+def get_all_loss_item_names(po_list):
+    names = []
+    seen = set()
+    for po in po_list:
+        for log in (po.get('lossLog') or []):
+            for item in (log.get('items') or []):
+                nm = item.get('nama', '')
+                if nm and nm not in seen:
+                    names.append(nm)
+                    seen.add(nm)
+    return names
+
+# ── Get all unique souvenir names ──
+def get_all_souvenir_names(po_list):
+    names = []
+    seen = set()
+    for po in po_list:
+        for sv in (po.get('souvenir') or []):
+            nm = sv.get('nama', '')
+            if nm and nm not in seen:
+                names.append(nm)
+                seen.add(nm)
+    return names
+
+# ── Build loss summary per PO: {nama_barang: netLoss qty} ──
+def po_loss_by_item(po):
+    result = {}
+    for log in (po.get('lossLog') or []):
+        for item in (log.get('items') or []):
+            nm = item.get('nama', '')
+            nl = rp(item.get('netLoss', 0))
+            if nm:
+                result[nm] = result.get(nm, 0) + nl
+    return result
+
+# ── Build souvenir summary per PO: {nama: qty} ──
+def po_souvenir_by_item(po):
+    result = {}
+    for sv in (po.get('souvenir') or []):
+        nm = sv.get('nama', '')
+        qty = rp(sv.get('qty', 0))
+        if nm:
+            result[nm] = result.get(nm, 0) + qty
+    return result
+
+# ══════════════════════════════════════════════════════════════════
+# SHEET: Sales atau Nego (satu sheet per orang)
+# ══════════════════════════════════════════════════════════════════
+def build_sales_nego_sheet(wb, entitas, peran, po_list, settings, periode_label,
+                            loss_item_names, souvenir_names):
+    nama = entitas.get('nama', '?')
+    safe_sheet = f"{peran[:1]}-{nama}"[:31]
+    ws = wb.create_sheet(safe_sheet)
+    ws.sheet_view.showGridLines = False
+
+    komisi_rate = rp(entitas.get('komisiRate', 0))
+    pct1 = settings.get('split_komisi_pct1', 60) / 100
+    pct2 = settings.get('split_komisi_pct2', 40) / 100
+    splitN1 = settings.get('split_termin1', 4)  # termin 1-4 = pct1, 5-7 = pct2
+
+    # Filter PO milik entitas ini
+    field = 'sales' if peran == 'Sales' else 'nego'
+    my_pos = [p for p in po_list if p.get(field) == nama]
+
+    # Hitung max cicilan
+    max_cicilan = max((len(p.get('cicilan', [])) for p in my_pos), default=7)
+    max_cicilan = max(max_cicilan, 7)
+
+    # Kolom dinamis
+    # Layout: A=No, B=Tgl, C=Konsumen, D=Alamat, E=Rekanan (nego/sales), F=Coll
+    #         G=Sold, H=Retur
+    #         I..I+max_c-1 = cicilan 1..N   (Penagihan)
+    #         P_base = Perhitungan Komisi: Komisi, Value Komisi, Sovenir, [nama barang = komisi per barang]
+    #         Payout: Termin1-splitN1, Termin splitN1+1..N
+    #         Minus Unit: [loss_item_names]
+    #         Total Minus
+    #         Total Termin 1..N
+
+    COL_NO    = 1
+    COL_TGL   = 2
+    COL_KONS  = 3
+    COL_AMAT  = 4
+    COL_REK   = 5   # "Nego" kalau Sales sheet, "Sales" kalau Nego sheet
+    COL_COLL  = 6
+    COL_SOLD  = 7
+    COL_RETUR = 8
+    COL_CIC1  = 9   # cicilan mulai kolom I
+    col_cic_last = COL_CIC1 + max_cicilan - 1
+
+    # Perhitungan Komisi group
+    COL_K_KOMISI   = col_cic_last + 1   # "Komisi" = rate satuan
+    COL_K_VALUE    = COL_K_KOMISI + 1   # "Value Komisi" = total
+    COL_K_SOVENIR  = COL_K_VALUE + 1
+    # Satu kolom per loss_item_names (komisi per barang produk)
+    col_k_items_start = COL_K_SOVENIR + 1
+    col_k_items_end   = col_k_items_start + len(loss_item_names) - 1 if loss_item_names else col_k_items_start - 1
+    COL_K_END = col_k_items_end if loss_item_names else COL_K_SOVENIR
+
+    # Payout
+    COL_PAY1 = COL_K_END + 1   # Termin 1-splitN1
+    COL_PAY2 = COL_PAY1 + 1    # Termin splitN1+1..N
+
+    # Minus Unit
+    col_minus_start = COL_PAY2 + 1
+    col_minus_end   = col_minus_start + len(loss_item_names) - 1 if loss_item_names else col_minus_start - 1
+    # Souvenir minus
+    col_sv_start  = col_minus_end + 1 if loss_item_names else col_minus_start
+    col_sv_end    = col_sv_start + len(souvenir_names) - 1 if souvenir_names else col_sv_start - 1
+
+    COL_TOTAL_MINUS = (col_sv_end + 1) if souvenir_names else (col_minus_end + 1 if loss_item_names else col_minus_start)
+    COL_TERMIN1     = COL_TOTAL_MINUS + 1
+    COL_LAST        = COL_TERMIN1 + max_cicilan - 1
+
+    NCOLS = COL_LAST
+
+    # ── Row 1: Periode ──
+    ws.row_dimensions[1].height = 18
+    ws.cell(row=1, column=2, value='Periode').font = Font(name='Arial', size=9, color='555555')
+    ws.cell(row=1, column=3, value=periode_label).font = Font(name='Arial', size=9, bold=True, color='1B3A5C')
+
+    # ── Row 2: Nama ──
+    ws.row_dimensions[2].height = 18
+    label2 = f'Nama {peran}'
+    ws.cell(row=2, column=2, value=label2).font = Font(name='Arial', size=9, color='555555')
+    ws.cell(row=2, column=3, value=nama).font = Font(name='Arial', size=9, bold=True, color='1B3A5C')
+
+    # ── Row 3: Rate komisi ──
+    ws.row_dimensions[3].height = 15
+    ws.cell(row=3, column=2, value='Rate Komisi').font = Font(name='Arial', size=8, color='888888')
+    ws.cell(row=3, column=3, value=komisi_rate).font = Font(name='Arial', size=8, color='2E7D52')
+    ws.cell(row=3, column=3).number_format = IDR
+
+    # ── Row 4-6: Header 3 level ──
+    R_H1, R_H2, R_H3 = 4, 5, 6
+    for r in [R_H1, R_H2, R_H3]:
+        ws.row_dimensions[r].height = 22
+
+    # Kolom A-F: merge row 4-6
+    for col, label in [(COL_NO,'No'), (COL_TGL,'Tanggal'), (COL_KONS,'Konsumen'),
+                        (COL_AMAT,'Alamat'),
+                        (COL_REK, 'Nego' if peran=='Sales' else 'Sales'),
+                        (COL_COLL,'Coll')]:
+        header(ws, R_H1, col, label, bg=C_HEADER_BG, size=9)
+        merge(ws, R_H1, col, R_H3, col)
+
+    # Regulator group G-H: merge row 4-5
+    header(ws, R_H1, COL_SOLD, 'Regulator', bg=C_HEADER_BG, size=9)
+    merge(ws, R_H1, COL_SOLD, R_H2, COL_RETUR)
+    header(ws, R_H3, COL_SOLD, 'Sold', bg=C_SUB_BG, size=8)
+    header(ws, R_H3, COL_RETUR, 'Retur', bg=C_SUB_BG, size=8)
+
+    # Penagihan: merge row 4-5 span semua cicilan
+    header(ws, R_H1, COL_CIC1, 'Penagihan', bg=C_HEADER_BG, size=9)
+    merge(ws, R_H1, COL_CIC1, R_H2, col_cic_last)
+    for i in range(max_cicilan):
+        header(ws, R_H3, COL_CIC1 + i, str(i+1), bg=C_SUB_BG, size=8)
+
+    # Perhitungan Komisi: merge row 4-5
+    header(ws, R_H1, COL_K_KOMISI, 'Perhitungan Komisi', bg=C_HEADER_BG, size=9)
+    merge(ws, R_H1, COL_K_KOMISI, R_H2, COL_K_END)
+    header(ws, R_H3, COL_K_KOMISI, 'Komisi', bg=C_SUB_BG, size=8)
+    header(ws, R_H3, COL_K_VALUE, 'Value Komisi', bg=C_SUB_BG, size=8)
+    header(ws, R_H3, COL_K_SOVENIR, 'Souvenir', bg=C_SUB_BG, size=8)
+    for i, nm in enumerate(loss_item_names):
+        header(ws, R_H3, col_k_items_start + i, f'Komisi\n{nm}', bg=C_SUB_BG, size=8)
+
+    # Payout: merge row 4-5
+    header(ws, R_H1, COL_PAY1, 'Payout', bg=C_HEADER_BG, size=9)
+    merge(ws, R_H1, COL_PAY1, R_H2, COL_PAY2)
+    header(ws, R_H3, COL_PAY1, f'Termin 1-{splitN1}', bg=C_SUB2_BG, size=8)
+    header(ws, R_H3, COL_PAY2, f'Termin {splitN1+1}-{max_cicilan}', bg=C_SUB2_BG, size=8)
+
+    # Minus Unit: merge row 4-5
+    minus_end_col = col_sv_end if souvenir_names else (col_minus_end if loss_item_names else col_minus_start)
+    if loss_item_names or souvenir_names:
+        header(ws, R_H1, col_minus_start, 'Minus Unit', bg=C_HEADER_BG, size=9)
+        merge(ws, R_H1, col_minus_start, R_H2, minus_end_col)
+    else:
+        header(ws, R_H1, col_minus_start, 'Minus Unit', bg=C_HEADER_BG, size=9)
+        merge(ws, R_H1, col_minus_start, R_H3, col_minus_start)
+
+    for i, nm in enumerate(loss_item_names):
+        header(ws, R_H3, col_minus_start + i, nm, bg=C_ACCENT2, fg='1B1B1B', size=8)
+    for i, nm in enumerate(souvenir_names):
+        header(ws, R_H3, col_sv_start + i, f'Sv:{nm}', bg=C_ACCENT2, fg='1B1B1B', size=8)
+
+    # Total Minus: merge row 4-6
+    header(ws, R_H1, COL_TOTAL_MINUS, 'Total\nMinus', bg=C_ACCENT2, fg='1B1B1B', size=9)
+    merge(ws, R_H1, COL_TOTAL_MINUS, R_H3, COL_TOTAL_MINUS)
+
+    # Total Termin: merge row 4-5
+    header(ws, R_H1, COL_TERMIN1, 'Total Termin', bg=C_HEADER_BG, size=9)
+    if max_cicilan > 1:
+        merge(ws, R_H1, COL_TERMIN1, R_H2, COL_LAST)
+    for i in range(max_cicilan):
+        header(ws, R_H3, COL_TERMIN1 + i, str(i+1), bg=C_SUB_BG, size=8)
+
+    # ── Rows data ──
+    r = 7
+    for idx, po in enumerate(my_pos):
+        ws.row_dimensions[r].height = 16
+        cicilan = po.get('cicilan', [])
+        bundle  = rp(po.get('bundle', 0))
+        # Hitung retur dari lossLog
+        total_loss_bundle = sum(
+            rp(log.get('bundleDikurangi', 0)) for log in (po.get('lossLog') or [])
+        )
+        loss_by_item  = po_loss_by_item(po)
+        sv_by_item    = po_souvenir_by_item(po)
+
+        # Nilai komisi dan payout
+        value_komisi = bundle * komisi_rate
+        total_sv_cost = rp(po.get('totalSouvenir', 0))
+        pay1 = value_komisi * pct1
+        pay2 = value_komisi * pct2
+
+        data(ws, r, COL_NO,    idx + 1)
+        data(ws, r, COL_TGL,   po.get('tanggal', ''), align='left')
+        data(ws, r, COL_KONS,  po.get('konsumen', ''), align='left')
+        data(ws, r, COL_AMAT,  po.get('lokasi', po.get('alamat', '')), align='left')
+        rekan = po.get('nego', '') if peran == 'Sales' else po.get('sales', '')
+        data(ws, r, COL_REK,   rekan, align='left')
+        data(ws, r, COL_COLL,  po.get('coll', ''))
+        data(ws, r, COL_SOLD,  bundle)
+        data(ws, r, COL_RETUR, total_loss_bundle if total_loss_bundle else '')
+
+        # Cicilan: isi nilai jika lunas, kosong jika belum
+        for i, c in enumerate(cicilan[:max_cicilan]):
+            col_c = COL_CIC1 + i
+            if c.get('status') == 'lunas':
+                data(ws, r, col_c, rp(c.get('tagihan', 0)), fmt=IDR, fg=C_ACCENT1)
+            else:
+                data(ws, r, col_c, '')
+        # Isi kosong untuk cicilan yang tidak ada
+        for i in range(len(cicilan), max_cicilan):
+            data(ws, r, COL_CIC1 + i, '')
+
+        # Perhitungan Komisi
+        data(ws, r, COL_K_KOMISI,  komisi_rate, fmt=IDR, fg='1B3A5C')
+        data(ws, r, COL_K_VALUE,   value_komisi, fmt=IDR, fg=C_ACCENT1)
+        data(ws, r, COL_K_SOVENIR, total_sv_cost if total_sv_cost else '', fmt=IDR if total_sv_cost else None)
+        for i, nm in enumerate(loss_item_names):
+            # komisi per jenis barang = komisi_rate (per bundle), tapi ini placeholder
+            # bisa dikembangkan jika ada rate per produk
+            data(ws, r, col_k_items_start + i, '')
+
+        # Payout
+        data(ws, r, COL_PAY1, int(pay1), fmt=IDR, fg=C_ACCENT1)
+        data(ws, r, COL_PAY2, int(pay2), fmt=IDR, fg=C_ACCENT1)
+
+        # Minus Unit (loss qty per barang)
+        total_minus = 0
+        for i, nm in enumerate(loss_item_names):
+            qty = loss_by_item.get(nm, 0)
+            data(ws, r, col_minus_start + i, qty if qty else '', fg=C_ACCENT2 if qty else '888888')
+            total_minus += qty
+        for i, nm in enumerate(souvenir_names):
+            qty = sv_by_item.get(nm, 0)
+            data(ws, r, col_sv_start + i, qty if qty else '', fg=C_ACCENT2 if qty else '888888')
+
+        # Total Minus
+        data(ws, r, COL_TOTAL_MINUS, total_minus if total_minus else '', fg=C_ACCENT2 if total_minus else '888888')
+
+        # Total Termin per cicilan (akumulasi semua PO person ini, isi baris ini untuk PO ini)
+        for i, c in enumerate(cicilan[:max_cicilan]):
+            col_t = COL_TERMIN1 + i
+            if c.get('status') == 'lunas':
+                data(ws, r, col_t, rp(c.get('tagihan', 0)), fmt=IDR, fg=C_ACCENT1)
+            else:
+                data(ws, r, col_t, '')
+        for i in range(len(cicilan), max_cicilan):
+            data(ws, r, COL_TERMIN1 + i, '')
+
+        r += 1
+
+    # ── Row total ──
+    ws.row_dimensions[r].height = 18
+    _cell(ws, r, COL_NO, 'TOTAL', fg='FFFFFF', bg=C_TOTAL_BG, bold=True,
+          align='center', size=9)
+    # Merge total label
+    merge(ws, r, COL_NO, r, COL_COLL)
+
+    data_start = 7
+    data_end   = r - 1
+
+    if data_end >= data_start:
+        sl = get_column_letter
+        # Sold total
+        _cell(ws, r, COL_SOLD, f'=SUM({sl(COL_SOLD)}{data_start}:{sl(COL_SOLD)}{data_end})',
+              fmt=IDR, bg=C_TOTAL_BG, bold=True, align='center', fg='1B3A5C')
+        _cell(ws, r, COL_RETUR, f'=SUM({sl(COL_RETUR)}{data_start}:{sl(COL_RETUR)}{data_end})',
+              fmt=IDR, bg=C_TOTAL_BG, bold=True, align='center', fg=C_ACCENT2)
+        # Cicilan totals
+        for i in range(max_cicilan):
+            col_c = COL_CIC1 + i
+            _cell(ws, r, col_c, f'=SUM({sl(col_c)}{data_start}:{sl(col_c)}{data_end})',
+                  fmt=IDR, bg=C_TOTAL_BG, bold=True, align='right', fg=C_ACCENT1)
+        # Komisi totals
+        _cell(ws, r, COL_K_VALUE, f'=SUM({sl(COL_K_VALUE)}{data_start}:{sl(COL_K_VALUE)}{data_end})',
+              fmt=IDR, bg=C_TOTAL_BG, bold=True, align='right', fg=C_ACCENT1)
+        _cell(ws, r, COL_K_SOVENIR, f'=SUM({sl(COL_K_SOVENIR)}{data_start}:{sl(COL_K_SOVENIR)}{data_end})',
+              fmt=IDR, bg=C_TOTAL_BG, bold=True, align='right', fg=C_ACCENT1)
+        # Payout totals
+        _cell(ws, r, COL_PAY1, f'=SUM({sl(COL_PAY1)}{data_start}:{sl(COL_PAY1)}{data_end})',
+              fmt=IDR, bg=C_TOTAL_BG, bold=True, align='right', fg=C_ACCENT1)
+        _cell(ws, r, COL_PAY2, f'=SUM({sl(COL_PAY2)}{data_start}:{sl(COL_PAY2)}{data_end})',
+              fmt=IDR, bg=C_TOTAL_BG, bold=True, align='right', fg=C_ACCENT1)
+        # Minus totals
+        for i in range(len(loss_item_names)):
+            col_m = col_minus_start + i
+            _cell(ws, r, col_m, f'=SUM({sl(col_m)}{data_start}:{sl(col_m)}{data_end})',
+                  fmt='0', bg=C_TOTAL_BG, bold=True, align='center', fg=C_ACCENT2)
+        for i in range(len(souvenir_names)):
+            col_sv = col_sv_start + i
+            _cell(ws, r, col_sv, f'=SUM({sl(col_sv)}{data_start}:{sl(col_sv)}{data_end})',
+                  fmt='0', bg=C_TOTAL_BG, bold=True, align='center', fg=C_ACCENT2)
+        _cell(ws, r, COL_TOTAL_MINUS, f'=SUM({sl(COL_TOTAL_MINUS)}{data_start}:{sl(COL_TOTAL_MINUS)}{data_end})',
+              fmt='0', bg=C_TOTAL_BG, bold=True, align='center', fg=C_ACCENT2)
+        # Total Termin totals
+        for i in range(max_cicilan):
+            col_t = COL_TERMIN1 + i
+            _cell(ws, r, col_t, f'=SUM({sl(col_t)}{data_start}:{sl(col_t)}{data_end})',
+                  fmt=IDR, bg=C_TOTAL_BG, bold=True, align='right', fg=C_ACCENT1)
+    else:
+        for col in range(COL_SOLD, NCOLS + 1):
+            _cell(ws, r, col, '', bg=C_TOTAL_BG)
+
+    # ── Column widths ──
+    ws.column_dimensions['A'].width = 5
+    ws.column_dimensions['B'].width = 13
+    ws.column_dimensions['C'].width = 18
+    ws.column_dimensions['D'].width = 16
+    ws.column_dimensions['E'].width = 14
+    ws.column_dimensions['F'].width = 12
+    ws.column_dimensions['G'].width = 8
+    ws.column_dimensions['H'].width = 8
+    for i in range(max_cicilan):
+        ws.column_dimensions[get_column_letter(COL_CIC1 + i)].width = 13
+    ws.column_dimensions[get_column_letter(COL_K_KOMISI)].width = 12
+    ws.column_dimensions[get_column_letter(COL_K_VALUE)].width = 14
+    ws.column_dimensions[get_column_letter(COL_K_SOVENIR)].width = 12
+    for i in range(len(loss_item_names)):
+        ws.column_dimensions[get_column_letter(col_k_items_start + i)].width = 13
+    ws.column_dimensions[get_column_letter(COL_PAY1)].width = 14
+    ws.column_dimensions[get_column_letter(COL_PAY2)].width = 14
+    for i in range(len(loss_item_names)):
+        ws.column_dimensions[get_column_letter(col_minus_start + i)].width = 11
+    for i in range(len(souvenir_names)):
+        ws.column_dimensions[get_column_letter(col_sv_start + i)].width = 11
+    ws.column_dimensions[get_column_letter(COL_TOTAL_MINUS)].width = 11
+    for i in range(max_cicilan):
+        ws.column_dimensions[get_column_letter(COL_TERMIN1 + i)].width = 13
+
+    ws.freeze_panes = ws.cell(row=7, column=COL_CIC1)
+    return ws
+
+
+# ══════════════════════════════════════════════════════════════════
+# SHEET: Global Monitoring — 1 baris per sales per hari
+# Layout: grouped by bulan, TGL di-merge per hari,
+#         subtotal per hari, subtotal per bulan, grand total
+# ══════════════════════════════════════════════════════════════════
+def build_global_monitoring_sheet(wb, db, periode_label):
+    ws = wb.create_sheet('Monitoring Global')
+    ws.sheet_view.showGridLines = False
+
+    trip_list  = db.get('tripList', [])
+    po_list    = db.get('poList', [])
+    settings   = db.get('settings', {})
+    inventory  = db.get('inventory', [])
+    perusahaan = settings.get('perusahaan', {})
+    nama_perus = perusahaan.get('nama', 'Inter Global Pratama')
+
+    # ── Daftar barang jual (unique by nama, ambil harga kondisi good) ──
+    barang_map = {}   # nama → harga
+    for inv in inventory:
+        if inv.get('kategori') == 'jual' and inv.get('kondisi') == 'good':
+            nm = inv.get('nama', '')
+            if nm and nm not in barang_map:
+                barang_map[nm] = rp(inv.get('harga', 0))
+    all_barang = list(barang_map.keys())
+
+    # ── Daftar souvenir (unique by nama, ambil harga) ──
+    souvenir_map = {}
+    for inv in inventory:
+        if inv.get('kategori') == 'sovenir':
+            nm = inv.get('nama', '')
+            if nm and nm not in souvenir_map:
+                souvenir_map[nm] = rp(inv.get('harga', 0))
+    # Tambah dari PO kalau ada nama yang belum di inventory
+    for po in po_list:
+        for sv in (po.get('souvenir') or []):
+            nm = sv.get('nama', '')
+            if nm and nm not in souvenir_map:
+                souvenir_map[nm] = rp(sv.get('harga', 0))
+    all_souvenir = list(souvenir_map.keys())
+
+    # ── Semua sales aktif ──
+    all_sales_aktif = [e['nama'] for e in db.get('entitas', [])
+                       if e.get('peran') == 'Sales' and e.get('aktifStatus')]
+
+    # ── PO diindex by (tanggal, sales) ──
+    po_by_tgl_sales = {}
+    for po in po_list:
+        key = (po.get('tanggal', ''), po.get('sales', ''))
+        po_by_tgl_sales.setdefault(key, []).append(po)
+
+    # ── Trip diindex by tanggal ──
+    trip_by_tgl = {}
+    for trip in trip_list:
+        tgl = trip.get('tanggal', '')
+        trip_by_tgl.setdefault(tgl, []).append(trip)
+
+    # ── Kumpulkan semua tanggal unik dari trip ──
+    all_dates_raw = sorted(set(t.get('tanggalRaw', '') for t in trip_list if t.get('tanggalRaw')))
+    # Parse ke (year, month, day) untuk grouping
+    def parse_raw(raw):
+        try:
+            parts = raw.split('-')
+            return int(parts[0]), int(parts[1]), int(parts[2])
+        except:
+            return (0, 0, 0)
+
+    # Group tanggal by (year, month)
+    from collections import defaultdict
+    dates_by_month = defaultdict(list)
+    for raw in all_dates_raw:
+        y, m, d = parse_raw(raw)
+        dates_by_month[(y, m)].append(raw)
+
+    BULAN_ID = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+
+    # ── Layout kolom ──
+    COL_TGL   = 1
+    COL_SALES = 2
+    COL_NEGO  = 3
+    COL_SUPIR = 4
+    COL_SESI  = 5
+    COL_KONS  = 6
+
+    col_brg_start = 7
+    col_brg_end   = col_brg_start + len(all_barang) * 2 - 1 if all_barang else col_brg_start - 1
+
+    col_sv_start = col_brg_end + 1 if all_barang else col_brg_start
+    col_sv_end   = col_sv_start + len(all_souvenir) * 2 - 1 if all_souvenir else col_sv_start - 1
+
+    COL_TOT_BRG_QTY = (col_sv_end + 1) if all_souvenir else ((col_brg_end + 1) if all_barang else col_brg_start)
+    COL_TOT_BRG_VAL = COL_TOT_BRG_QTY + 1
+    COL_TOT_SV_QTY  = COL_TOT_BRG_VAL + 1
+    COL_TOT_SV_VAL  = COL_TOT_SV_QTY + 1
+    COL_KET         = COL_TOT_SV_VAL + 1
+    NCOLS = COL_KET
+
+    sl = get_column_letter
+
+    def sum_formula(col, r_start, r_end):
+        return f'=SUM({sl(col)}{r_start}:{sl(col)}{r_end})'
+
+    def write_subtotal_row(r, label, r_start, r_end, bg, label_col_end=COL_KONS):
+        ws.row_dimensions[r].height = 16
+        _cell(ws, r, COL_TGL, label, fg='FFFFFF', bg=bg, bold=True, align='left', size=9)
+        merge(ws, r, COL_TGL, r, label_col_end)
+        for i in range(len(all_barang)):
+            c = col_brg_start + i * 2
+            _cell(ws, r, c,   sum_formula(c,   r_start, r_end), fmt='0',  bg=bg, bold=True, align='center', fg='FFFFFF')
+            _cell(ws, r, c+1, sum_formula(c+1, r_start, r_end), fmt=IDR,  bg=bg, bold=True, align='right',  fg='FAC775')
+        for i in range(len(all_souvenir)):
+            c = col_sv_start + i * 2
+            _cell(ws, r, c,   sum_formula(c,   r_start, r_end), fmt='0',  bg=bg, bold=True, align='center', fg='FFFFFF')
+            _cell(ws, r, c+1, sum_formula(c+1, r_start, r_end), fmt=IDR,  bg=bg, bold=True, align='right',  fg='FAC775')
+        _cell(ws, r, COL_TOT_BRG_QTY, sum_formula(COL_TOT_BRG_QTY, r_start, r_end), fmt='0',  bg=bg, bold=True, align='center', fg='FFFFFF')
+        _cell(ws, r, COL_TOT_BRG_VAL, sum_formula(COL_TOT_BRG_VAL, r_start, r_end), fmt=IDR,  bg=bg, bold=True, align='right',  fg='FAC775')
+        _cell(ws, r, COL_TOT_SV_QTY,  sum_formula(COL_TOT_SV_QTY,  r_start, r_end), fmt='0',  bg=bg, bold=True, align='center', fg='FFFFFF')
+        _cell(ws, r, COL_TOT_SV_VAL,  sum_formula(COL_TOT_SV_VAL,  r_start, r_end), fmt=IDR,  bg=bg, bold=True, align='right',  fg='FAC775')
+        _cell(ws, r, COL_KET, '', bg=bg)
+
+    # ── Row 1-2: Title ──
+    ws.row_dimensions[1].height = 30
+    cell = ws.cell(row=1, column=1, value=f'LAPORAN KEUANGAN GLOBAL — {nama_perus.upper()}')
+    cell.font = Font(name='Arial', bold=True, size=14, color=C_TITLE_FG)
+    cell.fill = PatternFill('solid', fgColor=C_TITLE_BG)
+    cell.alignment = Alignment(horizontal='left', vertical='center')
+    merge(ws, 1, 1, 1, NCOLS)
+
+    ws.row_dimensions[2].height = 16
+    cell2 = ws.cell(row=2, column=1, value=f'Periode: {periode_label}')
+    cell2.font = Font(name='Arial', size=9, color='888888')
+    merge(ws, 2, 1, 2, NCOLS)
+
+    # ── Row 3-5: Header ──
+    R_H1, R_H2, R_H3 = 3, 4, 5
+    ws.row_dimensions[R_H1].height = 24
+    ws.row_dimensions[R_H2].height = 16
+    ws.row_dimensions[R_H3].height = 18
+
+    # Fixed cols: merge R_H1..R_H3
+    for col, label in [(COL_TGL,'Tanggal'), (COL_SALES,'Sales'), (COL_NEGO,'Nego'),
+                        (COL_SUPIR,'Supir'), (COL_SESI,'Sesi'), (COL_KONS,'Konsumen/Tujuan')]:
+        header(ws, R_H1, col, label, bg=C_HEADER_BG, size=9)
+        merge(ws, R_H1, col, R_H3, col)
+
+    # Barang keluar group
+    if all_barang:
+        header(ws, R_H1, col_brg_start, 'Barang Keluar', bg=C_HEADER_BG, size=9)
+        merge(ws, R_H1, col_brg_start, R_H1, col_brg_end)
+        for i, nm in enumerate(all_barang):
+            c = col_brg_start + i * 2
+            hrg = barang_map.get(nm, 0)
+            lbl = f'{nm}\n@ {hrg:,}' if hrg else nm
+            header(ws, R_H2, c, lbl, bg=C_SUB_BG, size=8, wrap=True)
+            merge(ws, R_H2, c, R_H2, c+1)
+            header(ws, R_H3, c,   'Unit', bg=C_SUB2_BG, size=8)
+            header(ws, R_H3, c+1, 'Value (Rp)', bg=C_SUB2_BG, size=8)
+
+    # Souvenir group
+    if all_souvenir:
+        header(ws, R_H1, col_sv_start, 'Souvenir', bg='2E5E3E', size=9)
+        merge(ws, R_H1, col_sv_start, R_H1, col_sv_end)
+        for i, nm in enumerate(all_souvenir):
+            c = col_sv_start + i * 2
+            hrg = souvenir_map.get(nm, 0)
+            lbl = f'{nm}\n@ {hrg:,}' if hrg else nm
+            header(ws, R_H2, c, lbl, bg='3A7D52', size=8, wrap=True)
+            merge(ws, R_H2, c, R_H2, c+1)
+            header(ws, R_H3, c,   'Qty',       bg='4A9D62', size=8)
+            header(ws, R_H3, c+1, 'Value (Rp)', bg='4A9D62', size=8)
+
+    # Total columns
+    for col, label in [(COL_TOT_BRG_QTY,'Total\nUnit'), (COL_TOT_BRG_VAL,'Total\nValue'),
+                        (COL_TOT_SV_QTY,'Sv\nQty'), (COL_TOT_SV_VAL,'Sv\nValue'),
+                        (COL_KET,'Keterangan')]:
+        header(ws, R_H1, col, label, bg=C_HEADER_BG, size=8)
+        merge(ws, R_H1, col, R_H3, col)
+
+    # ── Data rows ──
+    r = 6
+    grand_data_rows = []  # kumpulkan semua row data untuk grand total
+
+    sorted_months = sorted(dates_by_month.keys())
+
+    for (year, month) in sorted_months:
+        month_dates = sorted(dates_by_month[(year, month)])
+        nama_bulan  = BULAN_ID[month] if month <= 12 else str(month)
+
+        # ── Header bulan ──
+        ws.row_dimensions[r].height = 20
+        cell_bln = ws.cell(row=r, column=1, value=f'  {nama_bulan.upper()} {year}')
+        cell_bln.font = Font(name='Arial', bold=True, size=10, color=C_TITLE_FG)
+        cell_bln.fill = PatternFill('solid', fgColor=C_TITLE_BG)
+        cell_bln.alignment = Alignment(horizontal='left', vertical='center')
+        merge(ws, r, 1, r, NCOLS)
+        r += 1
+
+        month_data_start = r  # untuk subtotal bulan
+
+        for raw_date in month_dates:
+            trips_hari = trip_by_tgl.get(
+                next((t.get('tanggal','') for t in trip_list if t.get('tanggalRaw','') == raw_date), ''),
+                []
+            )
+            # Lebih reliable: cari tanggal display dari trip
+            tgl_display = next(
+                (t.get('tanggal','') for t in trip_list if t.get('tanggalRaw','') == raw_date),
+                raw_date
+            )
+            trips_hari = trip_by_tgl.get(tgl_display, [])
+
+            # Sales yang hadir hari ini (ada di minimal 1 trip)
+            sales_hadir = set()
+            for trip in trips_hari:
+                for s in trip.get('salesNama', []):
+                    sales_hadir.add(s)
+
+            # Kumpulkan semua sales yang muncul hari ini (hadir + OFF)
+            sales_hari = sorted(sales_hadir) + [s for s in all_sales_aktif if s not in sales_hadir]
+
+            day_row_start = r
+
+            for sales_nm in sales_hari:
+                ws.row_dimensions[r].height = 15
+                is_off = sales_nm not in sales_hadir
+
+                # Cari trip yang berisi sales ini
+                trip_sales = next((t for t in trips_hari if sales_nm in t.get('salesNama', [])), None)
+                nego  = trip_sales.get('negoNama', trip_sales.get('nego', '')) if trip_sales else ''
+                supir = trip_sales.get('supirNama', '') if trip_sales else ''
+                sesi  = trip_sales.get('sesi', '') if trip_sales else ''
+                kons  = trip_sales.get('konsumen', trip_sales.get('tujuan', '')) if trip_sales else ''
+                ket   = 'OFF' if is_off else (trip_sales.get('ket', '') if trip_sales else '')
+
+                bg = 'F5F5F5' if is_off else (C_ROW_EVEN if r % 2 == 0 else C_ROW_ODD)
+                fg_txt = 'AAAAAA' if is_off else '1B3A5C'
+
+                # TGL — akan di-merge setelah semua sales hari ini ditulis
+                _cell(ws, r, COL_TGL, tgl_display, fg=fg_txt, bg=bg, align='center', size=9)
+                _cell(ws, r, COL_SALES, sales_nm, fg='AA3333' if is_off else fg_txt, bg=bg, bold=is_off, align='left', size=9)
+                _cell(ws, r, COL_NEGO,  nego,  fg=fg_txt, bg=bg, align='left',   size=9)
+                _cell(ws, r, COL_SUPIR, supir, fg=fg_txt, bg=bg, align='left',   size=9)
+                _cell(ws, r, COL_SESI,  sesi,  fg=fg_txt, bg=bg, align='center', size=9)
+                _cell(ws, r, COL_KONS,  kons,  fg=fg_txt, bg=bg, align='left',   size=9)
+
+                total_brg_qty = 0
+                total_brg_val = 0
+                if not is_off:
+                    # PO milik sales ini di hari ini
+                    my_pos = po_by_tgl_sales.get((tgl_display, sales_nm), [])
+                    # Hitung qty & value per barang dari bundle PO
+                    brg_q = {nm: 0 for nm in all_barang}
+                    brg_v = {nm: 0 for nm in all_barang}
+                    sv_q  = {nm: 0 for nm in all_souvenir}
+                    sv_v  = {nm: 0 for nm in all_souvenir}
+
+                    for po in my_pos:
+                        bundle_total = rp(po.get('bundle', 0))
+                        bd_list = po.get('bundleDetail') or []
+                        matched_any = False
+                        for bd in bd_list:
+                            prod_nm  = bd.get('produk', '')
+                            qty_bd   = rp(bd.get('qty', 0))
+                            harga_bd = rp(bd.get('harga', 0))
+                            matched  = next(
+                                (nm for nm in all_barang
+                                 if nm.lower() in prod_nm.lower() or prod_nm.lower() in nm.lower()),
+                                None
+                            )
+                            if matched:
+                                brg_q[matched] += qty_bd
+                                brg_v[matched] += qty_bd * harga_bd
+                                matched_any = True
+                        # Fallback: bundleDetail tidak match inventory → pakai bundle count
+                        if not matched_any and bundle_total > 0 and all_barang:
+                            nm0 = all_barang[0]
+                            brg_q[nm0] += bundle_total
+                            brg_v[nm0] += bundle_total * barang_map.get(nm0, 0)
+
+                        for sv in (po.get('souvenir') or []):
+                            nm  = sv.get('nama', '')
+                            qty = rp(sv.get('qty', 0))
+                            hrg = rp(sv.get('harga', 0)) or souvenir_map.get(nm, 0)
+                            if nm in sv_q:
+                                sv_q[nm] += qty
+                                sv_v[nm] += qty * hrg
+
+                    for i, nm in enumerate(all_barang):
+                        c   = col_brg_start + i * 2
+                        qty = brg_q.get(nm, 0)
+                        val = brg_v.get(nm, 0)
+                        _cell(ws, r, c,   qty if qty else '', fmt='0' if qty else None,
+                              fg=C_ACCENT1 if qty else '888888', bg=bg, align='center', size=9)
+                        _cell(ws, r, c+1, val if val else '', fmt=IDR if val else None,
+                              fg=C_ACCENT1 if val else '888888', bg=bg, align='right', size=9)
+                        total_brg_qty += qty
+                        total_brg_val += val
+
+                    total_sv_qty = 0
+                    total_sv_val = 0
+                    for i, nm in enumerate(all_souvenir):
+                        c   = col_sv_start + i * 2
+                        qty = sv_q.get(nm, 0)
+                        val = sv_v.get(nm, 0)
+                        _cell(ws, r, c,   qty if qty else '', fmt='0' if qty else None,
+                              fg='5DCAA5' if qty else '888888', bg=bg, align='center', size=9)
+                        _cell(ws, r, c+1, val if val else '', fmt=IDR if val else None,
+                              fg='5DCAA5' if val else '888888', bg=bg, align='right', size=9)
+                        total_sv_qty += qty
+                        total_sv_val += val
+
+                    _cell(ws, r, COL_TOT_BRG_QTY, total_brg_qty or '', fmt='0' if total_brg_qty else None,
+                          fg=C_ACCENT1, bg=bg, bold=True, align='center', size=9)
+                    _cell(ws, r, COL_TOT_BRG_VAL, total_brg_val or '', fmt=IDR if total_brg_val else None,
+                          fg=C_ACCENT1, bg=bg, bold=True, align='right', size=9)
+                    _cell(ws, r, COL_TOT_SV_QTY, total_sv_qty or '', fmt='0' if total_sv_qty else None,
+                          fg='5DCAA5', bg=bg, align='center', size=9)
+                    _cell(ws, r, COL_TOT_SV_VAL, total_sv_val or '', fmt=IDR if total_sv_val else None,
+                          fg='5DCAA5', bg=bg, align='right', size=9)
+                else:
+                    # OFF: isi kosong semua kolom angka
+                    for col in range(col_brg_start, NCOLS):
+                        _cell(ws, r, col, '', bg=bg)
+
+                _cell(ws, r, COL_KET, ket, fg='AA3333' if is_off else fg_txt, bg=bg, align='left', size=9)
+                grand_data_rows.append(r)
+                r += 1
+
+            # ── Merge kolom TGL untuk semua baris sales hari ini ──
+            n_sales_rows = r - day_row_start
+            if n_sales_rows > 1:
+                merge(ws, day_row_start, COL_TGL, r - 1, COL_TGL)
+
+            # ── Subtotal per hari ──
+            if n_sales_rows > 0 and day_row_start < r:
+                write_subtotal_row(r, f'  Sub-Total {tgl_display}', day_row_start, r - 1, C_SUB_BG)
+                r += 1
+
+        # ── Subtotal per bulan ──
+        write_subtotal_row(r, f'  TOTAL {nama_bulan.upper()} {year}', month_data_start, r - 1, C_HEADER_BG)
+        r += 2  # blank line setelah bulan
+
+    # ── Grand Total ──
+    if grand_data_rows:
+        ws.row_dimensions[r].height = 20
+        _cell(ws, r, COL_TGL, 'GRAND TOTAL', fg=C_TITLE_FG, bg=C_TITLE_BG, bold=True, align='left', size=10)
+        merge(ws, r, COL_TGL, r, COL_KONS)
+        for i in range(len(all_barang)):
+            c = col_brg_start + i * 2
+            _cell(ws, r, c,   sum_formula(c,   6, r-1), fmt='0',  bg=C_TITLE_BG, bold=True, align='center', fg='FAC775')
+            _cell(ws, r, c+1, sum_formula(c+1, 6, r-1), fmt=IDR,  bg=C_TITLE_BG, bold=True, align='right',  fg='FAC775')
+        for i in range(len(all_souvenir)):
+            c = col_sv_start + i * 2
+            _cell(ws, r, c,   sum_formula(c,   6, r-1), fmt='0',  bg=C_TITLE_BG, bold=True, align='center', fg='FAC775')
+            _cell(ws, r, c+1, sum_formula(c+1, 6, r-1), fmt=IDR,  bg=C_TITLE_BG, bold=True, align='right',  fg='FAC775')
+        _cell(ws, r, COL_TOT_BRG_QTY, sum_formula(COL_TOT_BRG_QTY, 6, r-1), fmt='0',  bg=C_TITLE_BG, bold=True, align='center', fg='FAC775')
+        _cell(ws, r, COL_TOT_BRG_VAL, sum_formula(COL_TOT_BRG_VAL, 6, r-1), fmt=IDR,  bg=C_TITLE_BG, bold=True, align='right',  fg='FAC775')
+        _cell(ws, r, COL_TOT_SV_QTY,  sum_formula(COL_TOT_SV_QTY,  6, r-1), fmt='0',  bg=C_TITLE_BG, bold=True, align='center', fg='FAC775')
+        _cell(ws, r, COL_TOT_SV_VAL,  sum_formula(COL_TOT_SV_VAL,  6, r-1), fmt=IDR,  bg=C_TITLE_BG, bold=True, align='right',  fg='FAC775')
+        _cell(ws, r, COL_KET, '', bg=C_TITLE_BG)
+
+    # ── Column widths ──
+    ws.column_dimensions['A'].width = 14
+    ws.column_dimensions['B'].width = 16
+    ws.column_dimensions['C'].width = 14
+    ws.column_dimensions['D'].width = 13
+    ws.column_dimensions['E'].width = 9
+    ws.column_dimensions['F'].width = 20
+    for i in range(len(all_barang)):
+        c = col_brg_start + i * 2
+        ws.column_dimensions[get_column_letter(c)].width = 8
+        ws.column_dimensions[get_column_letter(c+1)].width = 14
+    for i in range(len(all_souvenir)):
+        c = col_sv_start + i * 2
+        ws.column_dimensions[get_column_letter(c)].width = 8
+        ws.column_dimensions[get_column_letter(c+1)].width = 13
+    for col in [COL_TOT_BRG_QTY, COL_TOT_BRG_VAL, COL_TOT_SV_QTY, COL_TOT_SV_VAL]:
+        ws.column_dimensions[get_column_letter(col)].width = 12
+    ws.column_dimensions[get_column_letter(COL_KET)].width = 16
+
+    ws.freeze_panes = f'{get_column_letter(COL_KONS + 1)}6'
+    return ws
+
+
+# ══════════════════════════════════════════════════════════════════
+# MAIN BUILD
+# ══════════════════════════════════════════════════════════════════
+def build_excel(db, periode_label, only_nama=None):
+    wb = Workbook()
+    wb.remove(wb.active)
+
+    settings  = db.get('settings', {})
+    po_list   = db.get('poList', [])
+    entitas   = db.get('entitas', [])
+
+    # Kumpulkan nama barang dari lossLog semua PO
+    loss_item_names   = get_all_loss_item_names(po_list)
+    souvenir_names    = get_all_souvenir_names(po_list)
+
+    # ── Sheet per Sales ──
+    sales_list = [e for e in entitas if e.get('peran') == 'Sales' and (not only_nama or e.get('nama') == only_nama)]
+    for e in sales_list:
+        build_sales_nego_sheet(wb, e, 'Sales', po_list, settings,
+                               periode_label, loss_item_names, souvenir_names)
+
+    # ── Sheet per Nego ──
+    nego_list = [e for e in entitas if e.get('peran') == 'Nego' and (not only_nama or e.get('nama') == only_nama)]
+    for e in nego_list:
+        build_sales_nego_sheet(wb, e, 'Nego', po_list, settings,
+                               periode_label, loss_item_names, souvenir_names)
+
+    # ── Sheet Global Monitoring ──
+    if not only_nama:
+        build_global_monitoring_sheet(wb, db, periode_label)
+
+    # Freeze & set active
+    wb.active = wb.worksheets[0]
+
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    return out.getvalue()
+
+
+if __name__ == '__main__':
+    payload = json.load(sys.stdin)
+    db      = payload.get('db', payload)
+    periode = payload.get('periode', 'Semua Periode')
+
+    filter_nama     = None
+    monitoring_only = False
+
+    if periode.startswith('__filter__'):
+        rest        = periode[len('__filter__'):]
+        parts       = rest.split('__', 1)
+        filter_nama = parts[0]
+        periode     = parts[1] if len(parts) > 1 else 'Semua Periode'
+    elif periode.startswith('__monitoring__'):
+        monitoring_only = True
+        periode         = periode[len('__monitoring__'):]
+
+    print(f'[Python] filter={filter_nama!r} monitoring={monitoring_only} periode={periode!r}', file=sys.stderr)
+
+    if monitoring_only:
+        from openpyxl import Workbook as _WB
+        import io as _io
+        _wb = _WB()
+        _wb.remove(_wb.active)
+        build_global_monitoring_sheet(_wb, db, periode)
+        _wb.active = _wb.worksheets[0]
+        _out = _io.BytesIO()
+        _wb.save(_out)
+        _out.seek(0)
+        result = _out.getvalue()
+    else:
+        result = build_excel(db, periode, only_nama=filter_nama)
+
+    sys.stdout.buffer.write(result)

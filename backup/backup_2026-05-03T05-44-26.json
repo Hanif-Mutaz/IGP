@@ -1,0 +1,3787 @@
+{
+  "settings": {
+    "n_cicilan": 7,
+    "interval": "Mingguan",
+    "split_komisi_pct1": 60,
+    "split_komisi_pct2": 40,
+    "split_termin1": 4,
+    "split_termin2": 3,
+    "komisi_sales": 45000,
+    "komisi_nego": 15000,
+    "komisi_koor": 5000,
+    "komisi_coll": 1500,
+    "harga_std": 395000,
+    "harga_prem": 395000,
+    "notif": {
+      "hh": true,
+      "hMinus": [
+        {
+          "hari": 3,
+          "aktif": true
+        },
+        {
+          "hari": 1,
+          "aktif": true
+        }
+      ],
+      "telat": true,
+      "stok": true,
+      "hutang": true
+    },
+    "perusahaan": {
+      "nama": "Inter Global",
+      "alamat": "Jl. manaa aja",
+      "kota": "Bekasi Timur",
+      "telp": "081211132939",
+      "telp2": "089898083388",
+      "npwp": ""
+    },
+    "logo": "data:image/jpeg;base64,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",
+    "komisi_kc": 5000
+  },
+  "presets": [
+    {
+      "nama": "Pola A",
+      "vals": [
+        40,
+        20,
+        15,
+        10,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "nama": "Pola B",
+      "vals": [
+        30,
+        30,
+        20,
+        10,
+        10
+      ]
+    },
+    {
+      "nama": "Pola C",
+      "vals": [
+        50,
+        25,
+        25
+      ]
+    }
+  ],
+  "currentPreset": 0,
+  "inventory": [
+    {
+      "id": 1,
+      "nama": "Regulator",
+      "kategori": "jual",
+      "kondisi": "good",
+      "stok": 577,
+      "min": 0,
+      "terakhir": "24 Apr 2026",
+      "harga": 500000
+    },
+    {
+      "id": 2,
+      "nama": "Airandom",
+      "kategori": "jual",
+      "kondisi": "good",
+      "stok": 578,
+      "min": 0,
+      "terakhir": "24 Apr 2026",
+      "harga": 500000
+    },
+    {
+      "id": 3,
+      "nama": "Tumbler",
+      "kategori": "sovenir",
+      "kondisi": "good",
+      "stok": 802,
+      "min": 0,
+      "terakhir": "24 Apr 2026",
+      "harga": 10000
+    },
+    {
+      "id": 4,
+      "nama": "Airandom",
+      "kategori": "jual",
+      "kondisi": "reject",
+      "stok": 3,
+      "min": 0,
+      "harga": 500000,
+      "terakhir": "24 Apr 2026"
+    }
+  ],
+  "riwayatMasuk": [
+    {
+      "id": 3,
+      "tanggal": "24 Apr 2026",
+      "nama": "Tumbler",
+      "kondisi": "good",
+      "jumlah": 1000,
+      "supplier": "PT Sumber Makmur",
+      "catatan": ""
+    },
+    {
+      "id": 2,
+      "tanggal": "24 Apr 2026",
+      "nama": "Airandom",
+      "kondisi": "good",
+      "jumlah": 1000,
+      "supplier": "PT Sumber Makmur",
+      "catatan": ""
+    },
+    {
+      "id": 1,
+      "tanggal": "24 Apr 2026",
+      "nama": "Regulator",
+      "kondisi": "good",
+      "jumlah": 1000,
+      "supplier": "PT Sumber Makmur",
+      "catatan": ""
+    }
+  ],
+  "returList": [
+    {
+      "id": 1777242991884,
+      "tanggal": "26 Apr 2026",
+      "po": "PO-2026-065",
+      "konsumen": "Konsumen 1",
+      "kondisi": "Regulator: 1G/0R, Airandom: 1G/0R",
+      "jumlah": 1,
+      "alasan": "rusak",
+      "unitDetail": [
+        {
+          "invId": 1,
+          "good": 1,
+          "reject": 0,
+          "nama": "Regulator"
+        },
+        {
+          "invId": 2,
+          "good": 1,
+          "reject": 0,
+          "nama": "Airandom"
+        }
+      ],
+      "isFullRetur": false
+    },
+    {
+      "id": 1777041162413,
+      "tanggal": "24 Apr 2026",
+      "po": "PO-2026-063",
+      "konsumen": "Konsumen 4",
+      "kondisi": "Regulator: 1G/0R, Airandom: 1G/0R",
+      "jumlah": 1,
+      "alasan": "rusak",
+      "unitDetail": [
+        {
+          "invId": 1,
+          "good": 1,
+          "reject": 0,
+          "nama": "Regulator"
+        },
+        {
+          "invId": 2,
+          "good": 1,
+          "reject": 0,
+          "nama": "Airandom"
+        }
+      ],
+      "isFullRetur": false
+    }
+  ],
+  "konsumen": [
+    {
+      "id": 1777039960925,
+      "nama": "Konsumen 1",
+      "inisial": "K1",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "tjk",
+      "since": "Apr 2026",
+      "tagihan": 0,
+      "aktif": true,
+      "po": [
+        "PO-2026-060",
+        "PO-2026-065"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-060",
+          "bundle": 5,
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "poId": "PO-2026-065",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026"
+        }
+      ],
+      "komisiKotor": 95000,
+      "komisiBundle": 19,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040020094,
+      "nama": "Konsumen 2",
+      "inisial": "K2",
+      "warna": "#1a2d1e",
+      "warnaTxt": "#5DCAA5",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "jkt",
+      "since": "Apr 2026",
+      "tagihan": 10000000,
+      "aktif": true,
+      "po": [
+        "PO-2026-061"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-061",
+          "bundle": 10,
+          "tanggal": "24 Apr 2026"
+        }
+      ],
+      "komisiKotor": 0,
+      "komisiBundle": 0,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040034466,
+      "nama": "Konsumen 3",
+      "inisial": "K3",
+      "warna": "#291a14",
+      "warnaTxt": "#F0997B",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "jkt",
+      "since": "Apr 2026",
+      "tagihan": 15000000,
+      "aktif": true,
+      "po": [
+        "PO-2026-062"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-062",
+          "bundle": 15,
+          "tanggal": "24 Apr 2026"
+        }
+      ],
+      "komisiKotor": 0,
+      "komisiBundle": 0,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040044697,
+      "nama": "Konsumen 4",
+      "inisial": "K4",
+      "warna": "#0c1f35",
+      "warnaTxt": "#85B7EB",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "jkt",
+      "since": "Apr 2026",
+      "tagihan": 0,
+      "aktif": true,
+      "po": [
+        "PO-2026-063"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-063",
+          "bundle": 20,
+          "tanggal": "24 Apr 2026"
+        }
+      ],
+      "komisiKotor": 85000,
+      "komisiBundle": 17,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777134549801,
+      "nama": "Konsumen 5",
+      "inisial": "K5",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "jkt",
+      "since": "Apr 2026",
+      "tagihan": 0,
+      "aktif": true,
+      "po": []
+    },
+    {
+      "id": 1777134569729,
+      "nama": "Konsumen 6",
+      "inisial": "K6",
+      "warna": "#1a2d1e",
+      "warnaTxt": "#5DCAA5",
+      "telp": "",
+      "kota": "",
+      "alamat": "",
+      "since": "Apr 2026",
+      "tagihan": 49000000,
+      "aktif": true,
+      "po": [
+        "PO-2026-066"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-066",
+          "bundle": 100,
+          "tanggal": "1 Mei 2026"
+        }
+      ]
+    },
+    {
+      "id": 1777168035427,
+      "nama": "Konsumen 7",
+      "inisial": "K7",
+      "warna": "#291a14",
+      "warnaTxt": "#F0997B",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "jkt",
+      "since": "Apr 2026",
+      "tagihan": 2450000,
+      "aktif": true,
+      "po": [
+        "PO-2026-064",
+        "PO-2026-067"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-064",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026"
+        },
+        {
+          "poId": "PO-2026-067",
+          "bundle": 5,
+          "tanggal": "1 Mei 2026"
+        }
+      ]
+    },
+    {
+      "id": 1777597354875,
+      "nama": "Konsumen 8",
+      "inisial": "K8",
+      "warna": "#0c1f35",
+      "warnaTxt": "#85B7EB",
+      "telp": "123",
+      "kota": "jkt",
+      "alamat": "jk",
+      "since": "Apr 2026",
+      "tagihan": 1257142,
+      "aktif": true,
+      "po": [
+        "PO-2026-068",
+        "PO-2026-069"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-068",
+          "bundle": 10,
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "poId": "PO-2026-069",
+          "bundle": 20,
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "komisiKotor": 100000,
+      "komisiBundle": 20,
+      "kreditSaldo": 857142,
+      "kreditLog": [
+        {
+          "tanggal": "2 Mei 2026",
+          "jumlah": 142857,
+          "ket": "Kelebihan bayar termin 1 PO PO-2026-068 akibat loss adjustment"
+        },
+        {
+          "tanggal": "2 Mei 2026",
+          "jumlah": 142857,
+          "ket": "Kelebihan bayar termin 2 PO PO-2026-068 akibat loss adjustment"
+        },
+        {
+          "tanggal": "2 Mei 2026",
+          "jumlah": 142857,
+          "ket": "Kelebihan bayar termin 3 PO PO-2026-068 akibat loss adjustment"
+        },
+        {
+          "tanggal": "2 Mei 2026",
+          "jumlah": 142857,
+          "ket": "Kelebihan bayar termin 4 PO PO-2026-068 akibat loss adjustment"
+        },
+        {
+          "tanggal": "2 Mei 2026",
+          "jumlah": 142857,
+          "ket": "Kelebihan bayar termin 5 PO PO-2026-068 akibat loss adjustment"
+        },
+        {
+          "tanggal": "2 Mei 2026",
+          "jumlah": 142857,
+          "ket": "Kelebihan bayar termin 6 PO PO-2026-068 akibat loss adjustment"
+        }
+      ]
+    },
+    {
+      "id": 1777599021624,
+      "nama": "Konsumen 9",
+      "inisial": "K9",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "telp": "123",
+      "kota": "bks",
+      "alamat": "bks",
+      "since": "Apr 2026",
+      "tagihan": 0,
+      "aktif": true,
+      "po": [
+        "PO-2026-070"
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-070",
+          "bundle": 200,
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "komisiKotor": 1000000,
+      "komisiBundle": 200
+    }
+  ],
+  "selectedKonsumen": 1777599021624,
+  "poList": [
+    {
+      "id": "PO-2026-070",
+      "konsumenId": 1777599021624,
+      "konsumen": "Konsumen 9",
+      "bundle": 200,
+      "total": 200000000,
+      "sisa": 0,
+      "status": "lunas",
+      "tanggal": "1 Mei 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 6",
+      "nego": "Nego 6",
+      "koor": "Konsumen 9",
+      "coll": "",
+      "kc": "KC 6",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 200,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 40000000,
+          "status": "lunas",
+          "terbayar": 40000000,
+          "sisaTagihan": 0,
+          "collector": "Coll 6",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 40000000,
+          "status": "lunas",
+          "terbayar": 40000000,
+          "sisaTagihan": 0,
+          "collector": "Coll 6",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 40000000,
+          "status": "lunas",
+          "terbayar": 40000000,
+          "sisaTagihan": 0,
+          "collector": "Coll 6",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 40000000,
+          "status": "lunas",
+          "terbayar": 40000000,
+          "sisaTagihan": 0,
+          "collector": "Coll 6",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 5,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 40000000,
+          "status": "lunas",
+          "terbayar": 40000000,
+          "sisaTagihan": 0,
+          "collector": "Coll 6",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        }
+      ],
+      "splitN1": 3,
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 5400000,
+      "komisiSalesSplit2Cair": true,
+      "komisiSalesSplit2Nominal": 3600000,
+      "komisiNegoCair": true,
+      "komisiKcCair": true,
+      "komisiKoorDiberi": true
+    },
+    {
+      "id": "PO-2026-069",
+      "konsumenId": 1777597354875,
+      "konsumen": "Konsumen 8",
+      "bundle": 20,
+      "total": 20000000,
+      "sisa": 0,
+      "status": "lunas",
+      "tanggal": "1 Mei 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 5",
+      "nego": "Nego 5",
+      "koor": "Konsumen 8",
+      "coll": "",
+      "kc": "KC 5",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 20,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 3400000,
+          "status": "lunas",
+          "terbayar": 3400000,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 3400000,
+          "status": "lunas",
+          "terbayar": 3400000,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 3400000,
+          "status": "lunas",
+          "terbayar": 3400000,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 3400000,
+          "status": "lunas",
+          "terbayar": 3400000,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 5,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 3200000,
+          "status": "lunas",
+          "terbayar": 3200000,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 6,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 3200000,
+          "status": "lunas",
+          "terbayar": 3200000,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        }
+      ],
+      "splitN1": 3,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 10000,
+          "qty": 5
+        }
+      ],
+      "totalSouvenir": 50000,
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 540000,
+      "komisiSalesSplit2Cair": true,
+      "komisiSalesSplit2Nominal": 360000,
+      "komisiNegoCair": true,
+      "komisiKcCair": true,
+      "komisiKoorDiberi": true
+    },
+    {
+      "id": "PO-2026-068",
+      "konsumenId": 1777597354875,
+      "konsumen": "Konsumen 8",
+      "bundle": 9,
+      "total": 9000000,
+      "sisa": 1257142,
+      "status": "berjalan",
+      "tanggal": "1 Mei 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 5",
+      "nego": "Nego 5",
+      "koor": "Konsumen 8",
+      "coll": "",
+      "kc": "KC 5",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 9,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 1357143,
+          "status": "lunas",
+          "terbayar": 1357143,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 1357143,
+          "status": "lunas",
+          "terbayar": 1357143,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 1257143,
+          "status": "lunas",
+          "terbayar": 1257143,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 1257143,
+          "status": "lunas",
+          "terbayar": 1257143,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 5,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 1257143,
+          "status": "lunas",
+          "terbayar": 1257143,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 6,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 1257143,
+          "status": "lunas",
+          "terbayar": 1257143,
+          "sisaTagihan": 0,
+          "collector": "Coll 5",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 7,
+          "jatuh": "19 Jun 2026",
+          "tagihan": 1257142,
+          "status": "belum",
+          "sisaTagihan": 1257142
+        }
+      ],
+      "splitN1": 4,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 10000,
+          "qty": 20
+        }
+      ],
+      "totalSouvenir": 200000,
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 270000,
+      "lossLog": [
+        {
+          "id": 1777766334714,
+          "tanggal": "2 Mei 2026",
+          "items": [
+            {
+              "invId": 1,
+              "nama": "Regulator",
+              "hilang": 1,
+              "kembaliGood": 0,
+              "kembaliReject": 0,
+              "kembaliTotal": 0,
+              "kondisiKembali": "-",
+              "netLoss": 1,
+              "harga": 500000,
+              "subtotal": 500000
+            },
+            {
+              "invId": 2,
+              "nama": "Airandom",
+              "hilang": 0,
+              "kembaliGood": 0,
+              "kembaliReject": 1,
+              "kembaliTotal": 1,
+              "kondisiKembali": "1 reject",
+              "netLoss": 0,
+              "harga": 500000,
+              "subtotal": 0
+            }
+          ],
+          "bundleDikurangi": 1,
+          "bundleSetelah": 9,
+          "totalBeban": 500000,
+          "keterangan": ""
+        }
+      ]
+    },
+    {
+      "id": "PO-2026-067",
+      "konsumenId": 1777168035427,
+      "konsumen": "Konsumen 7",
+      "bundle": 5,
+      "total": 5000000,
+      "sisa": 2450000,
+      "status": "berjalan",
+      "tanggal": "1 Mei 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 4",
+      "nego": "Nego 4",
+      "koor": "Konsumen 7",
+      "coll": "",
+      "kc": "KC 3",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 5,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 850000,
+          "status": "lunas",
+          "terbayar": 850000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 850000,
+          "status": "lunas",
+          "terbayar": 850000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 850000,
+          "status": "lunas",
+          "terbayar": 850000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 850000,
+          "status": "belum"
+        },
+        {
+          "n": 5,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 800000,
+          "status": "belum"
+        },
+        {
+          "n": 6,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 800000,
+          "status": "belum"
+        }
+      ],
+      "splitN1": 3,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 10000,
+          "qty": 10
+        }
+      ],
+      "totalSouvenir": 100000,
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 135000
+    },
+    {
+      "id": "PO-2026-066",
+      "konsumenId": 1777134569729,
+      "konsumen": "Konsumen 6",
+      "bundle": 100,
+      "total": 100000000,
+      "sisa": 49000000,
+      "status": "berjalan",
+      "tanggal": "1 Mei 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 4",
+      "nego": "Nego 4",
+      "koor": "Konsumen 6",
+      "coll": "",
+      "kc": "KC 3",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 100,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 17000000,
+          "status": "lunas",
+          "terbayar": 17000000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 17000000,
+          "status": "lunas",
+          "terbayar": 17000000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 17000000,
+          "status": "lunas",
+          "terbayar": 17000000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-05-01",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 17000000,
+          "status": "belum"
+        },
+        {
+          "n": 5,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 16000000,
+          "status": "belum"
+        },
+        {
+          "n": 6,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 16000000,
+          "status": "belum"
+        }
+      ],
+      "splitN1": 3,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 10000,
+          "qty": 100
+        }
+      ],
+      "totalSouvenir": 1000000,
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 2700000
+    },
+    {
+      "id": "PO-2026-065",
+      "konsumenId": 1777039960925,
+      "konsumen": "Konsumen 1",
+      "bundle": 19,
+      "total": 19000000,
+      "sisa": 0,
+      "status": "lunas",
+      "tanggal": "26 Apr 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 1",
+      "nego": "Nego 1",
+      "koor": "Konsumen 1",
+      "coll": "",
+      "kc": "KC 1",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 20,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "3 Mei 2026",
+          "tagihan": 3400000,
+          "status": "lunas",
+          "terbayar": 3400000,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "10 Mei 2026",
+          "tagihan": 3195181,
+          "status": "lunas",
+          "terbayar": 3195181,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "17 Mei 2026",
+          "tagihan": 3195181,
+          "status": "lunas",
+          "terbayar": 3195181,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "24 Mei 2026",
+          "tagihan": 3195181,
+          "status": "lunas",
+          "terbayar": 3195181,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 5,
+          "jatuh": "31 Mei 2026",
+          "tagihan": 3007229,
+          "status": "lunas",
+          "terbayar": 3007229,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 6,
+          "jatuh": "7 Jun 2026",
+          "tagihan": 3007228,
+          "status": "lunas",
+          "terbayar": 3007228,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        }
+      ],
+      "splitN1": 3,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 10000,
+          "qty": 10
+        }
+      ],
+      "totalSouvenir": 100000,
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 513000,
+      "komisiSalesSplit2Cair": true,
+      "komisiSalesSplit2Nominal": 342000,
+      "komisiNegoCair": true,
+      "komisiKcCair": true,
+      "komisiKoorDiberi": true
+    },
+    {
+      "id": "PO-2026-064",
+      "konsumenId": 1777168035427,
+      "konsumen": "Konsumen 7",
+      "bundle": 19,
+      "total": 19000000,
+      "sisa": 15000000,
+      "status": "berjalan",
+      "tanggal": "26 Apr 2026",
+      "sesi": 3,
+      "lokasi": "",
+      "sales": "Sales 4",
+      "nego": "Nego 4",
+      "koor": "Konsumen 7",
+      "coll": "",
+      "kc": "KC 3",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 19,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "27 Apr 2026",
+          "tagihan": 4000000,
+          "status": "lunas",
+          "terbayar": 4000000,
+          "sisaTagihan": 0,
+          "collector": "Collector 4",
+          "tglBayar": "2026-04-26",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "4 Mei 2026",
+          "tagihan": 3750000,
+          "status": "belum",
+          "sisaTagihan": 3750000
+        },
+        {
+          "n": 3,
+          "jatuh": "11 Mei 2026",
+          "tagihan": 3750000,
+          "status": "belum",
+          "sisaTagihan": 3750000
+        },
+        {
+          "n": 4,
+          "jatuh": "18 Mei 2026",
+          "tagihan": 3750000,
+          "status": "belum",
+          "sisaTagihan": 3750000
+        },
+        {
+          "n": 5,
+          "jatuh": "25 Mei 2026",
+          "tagihan": 3750000,
+          "status": "belum",
+          "sisaTagihan": 3750000
+        }
+      ],
+      "splitN1": 3,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 10000,
+          "qty": 50
+        }
+      ],
+      "totalSouvenir": 500000,
+      "lossLog": [
+        {
+          "id": 1777168672692,
+          "tanggal": "26 Apr 2026",
+          "items": [
+            {
+              "invId": 1,
+              "nama": "Regulator",
+              "hilang": 1,
+              "kembaliGood": 0,
+              "kembaliReject": 0,
+              "kembaliTotal": 0,
+              "kondisiKembali": "-",
+              "netLoss": 1,
+              "harga": 500000,
+              "subtotal": 500000
+            },
+            {
+              "invId": 2,
+              "nama": "Airandom",
+              "hilang": 0,
+              "kembaliGood": 1,
+              "kembaliReject": 0,
+              "kembaliTotal": 1,
+              "kondisiKembali": "1 good",
+              "netLoss": 0,
+              "harga": 500000,
+              "subtotal": 0
+            }
+          ],
+          "bundleDikurangi": 1,
+          "bundleSetelah": 19,
+          "totalBeban": 500000,
+          "keterangan": ""
+        }
+      ]
+    },
+    {
+      "id": "PO-2026-063",
+      "konsumenId": 1777040044697,
+      "konsumen": "Konsumen 4",
+      "bundle": 17,
+      "total": 17000000,
+      "sisa": 0,
+      "status": "lunas",
+      "tanggal": "24 Apr 2026",
+      "sesi": 2,
+      "lokasi": "",
+      "sales": "Sales 2",
+      "nego": "Nego 2",
+      "koor": "Konsumen 4",
+      "coll": "",
+      "kc": "KC 1",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 18,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "1 Mei 2026",
+          "tagihan": 2000000,
+          "status": "lunas",
+          "terbayar": 2000000,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 2,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 1712802,
+          "status": "lunas",
+          "terbayar": 1712802,
+          "sisaTagihan": 0,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 3,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 4,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 5,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 6,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 7,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 8,
+          "jatuh": "19 Jun 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 9,
+          "jatuh": "26 Jun 2026",
+          "tagihan": 1660900,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660900,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        },
+        {
+          "n": 10,
+          "jatuh": "3 Jul 2026",
+          "tagihan": 1660898,
+          "status": "lunas",
+          "sisaTagihan": 0,
+          "terbayar": 1660898,
+          "collector": "Collector 1",
+          "tglBayar": "2026-04-24",
+          "catatan": "",
+          "komisiDiberi": true
+        }
+      ],
+      "splitN1": 5,
+      "lossLog": [
+        {
+          "id": 1777040859345,
+          "tanggal": "24 Apr 2026",
+          "items": [
+            {
+              "invId": 1,
+              "nama": "Regulator",
+              "hilang": 1,
+              "kembaliGood": 0,
+              "kembaliReject": 0,
+              "kembaliTotal": 0,
+              "kondisiKembali": "-",
+              "netLoss": 1,
+              "harga": 500000,
+              "subtotal": 500000
+            },
+            {
+              "invId": 2,
+              "nama": "Airandom",
+              "hilang": 0,
+              "kembaliGood": 0,
+              "kembaliReject": 1,
+              "kembaliTotal": 1,
+              "kondisiKembali": "1 reject",
+              "netLoss": 0,
+              "harga": 500000,
+              "subtotal": 0
+            }
+          ],
+          "bundleDikurangi": 1,
+          "bundleSetelah": 19,
+          "totalBeban": 500000,
+          "keterangan": ""
+        },
+        {
+          "id": 1777041025105,
+          "tanggal": "24 Apr 2026",
+          "items": [
+            {
+              "invId": 1,
+              "nama": "Regulator",
+              "hilang": 1,
+              "kembaliGood": 0,
+              "kembaliReject": 0,
+              "kembaliTotal": 0,
+              "kondisiKembali": "-",
+              "netLoss": 1,
+              "harga": 500000,
+              "subtotal": 500000
+            },
+            {
+              "invId": 2,
+              "nama": "Airandom",
+              "hilang": 0,
+              "kembaliGood": 0,
+              "kembaliReject": 1,
+              "kembaliTotal": 1,
+              "kondisiKembali": "1 reject",
+              "netLoss": 0,
+              "harga": 500000,
+              "subtotal": 0
+            }
+          ],
+          "bundleDikurangi": 1,
+          "bundleSetelah": 18,
+          "totalBeban": 500000,
+          "keterangan": ""
+        }
+      ],
+      "komisiSalesSplit1Cair": true,
+      "komisiSalesSplit1Nominal": 459000,
+      "komisiSalesSplit2Cair": true,
+      "komisiSalesSplit2Nominal": 306000,
+      "komisiNegoCair": true,
+      "komisiKcCair": true,
+      "komisiKoorDiberi": true
+    },
+    {
+      "id": "PO-2026-062",
+      "konsumenId": 1777040034466,
+      "konsumen": "Konsumen 3",
+      "bundle": 15,
+      "total": 15000000,
+      "sisa": 15000000,
+      "status": "telat",
+      "tanggal": "24 Apr 2026",
+      "sesi": 2,
+      "lokasi": "",
+      "sales": "Sales 1",
+      "nego": "Nego 1",
+      "koor": "Konsumen 3",
+      "coll": "",
+      "kc": "KC 1",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 15,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "1 Mei 2026",
+          "tagihan": 1500000,
+          "status": "telat"
+        },
+        {
+          "n": 2,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 3,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 4,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 5,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 6,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 7,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 8,
+          "jatuh": "19 Jun 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 9,
+          "jatuh": "26 Jun 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        },
+        {
+          "n": 10,
+          "jatuh": "3 Jul 2026",
+          "tagihan": 1500000,
+          "status": "belum"
+        }
+      ],
+      "splitN1": 5,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 200,
+          "qty": 1
+        }
+      ],
+      "totalSouvenir": 200
+    },
+    {
+      "id": "PO-2026-061",
+      "konsumenId": 1777040020094,
+      "konsumen": "Konsumen 2",
+      "bundle": 10,
+      "total": 10000000,
+      "sisa": 10000000,
+      "status": "telat",
+      "tanggal": "24 Apr 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 2",
+      "nego": "Nego 2",
+      "koor": "Konsumen 2",
+      "coll": "",
+      "kc": "KC 1",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 10,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "1 Mei 2026",
+          "tagihan": 1000000,
+          "status": "telat"
+        },
+        {
+          "n": 2,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 3,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 4,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 5,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 6,
+          "jatuh": "5 Jun 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 7,
+          "jatuh": "12 Jun 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 8,
+          "jatuh": "19 Jun 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 9,
+          "jatuh": "26 Jun 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 10,
+          "jatuh": "3 Jul 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        }
+      ],
+      "splitN1": 5,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 100,
+          "qty": 1
+        }
+      ],
+      "totalSouvenir": 100
+    },
+    {
+      "id": "PO-2026-060",
+      "konsumenId": 1777039960925,
+      "konsumen": "Konsumen 1",
+      "bundle": 5,
+      "total": 5000000,
+      "sisa": 5000000,
+      "status": "telat",
+      "tanggal": "24 Apr 2026",
+      "sesi": 1,
+      "lokasi": "",
+      "sales": "Sales 1",
+      "nego": "Nego 1",
+      "koor": "Konsumen 1",
+      "coll": "",
+      "kc": "KC 1",
+      "bundleDetail": [
+        {
+          "produk": "Paket 1",
+          "harga": 1000000,
+          "qty": 5,
+          "id": 1777039906318
+        }
+      ],
+      "cicilan": [
+        {
+          "n": 1,
+          "jatuh": "1 Mei 2026",
+          "tagihan": 1000000,
+          "status": "telat"
+        },
+        {
+          "n": 2,
+          "jatuh": "8 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 3,
+          "jatuh": "15 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 4,
+          "jatuh": "22 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        },
+        {
+          "n": 5,
+          "jatuh": "29 Mei 2026",
+          "tagihan": 1000000,
+          "status": "belum"
+        }
+      ],
+      "splitN1": 3,
+      "souvenir": [
+        {
+          "nama": "Tumbler",
+          "harga": 100,
+          "qty": 1
+        }
+      ],
+      "totalSouvenir": 100
+    }
+  ],
+  "selectedPO": "PO-2026-068",
+  "entitas": [
+    {
+      "id": 1777040057585,
+      "nama": "Sales 1",
+      "nik": "123",
+      "inisial": "S1",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Sales",
+      "bundle": 39,
+      "komisiKotor": 1559800,
+      "pengeluaran": 400300,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 45000,
+      "pengeluaranList": [
+        {
+          "id": 1777040233412.9902,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-060 — Tumbler ×1",
+          "jml": 100,
+          "tipe": "souvenir",
+          "poId": "PO-2026-060",
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "id": 1777040319740.1567,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-062 — Tumbler ×1",
+          "jml": 200,
+          "tipe": "souvenir",
+          "poId": "PO-2026-062",
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "id": 3554080551865,
+          "tripId": "TRIP-1777040494280",
+          "jenis": "Operasional",
+          "tipe": "operasional",
+          "ket": "Trip 24 Apr 2026 (Sewa Rp 300.000, Bensin Rp 150.000, Supir Rp 200.000, Lain Rp 100.000) ÷ 3 sales",
+          "jml": 250000
+        },
+        {
+          "id": 1777040805384,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 50000,
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "id": 1777242936116.947,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-065 — Tumbler ×10",
+          "jml": 100000,
+          "tipe": "souvenir",
+          "poId": "PO-2026-065",
+          "tanggal": "26 Apr 2026"
+        }
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-060",
+          "bundle": 5,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 1"
+        },
+        {
+          "poId": "PO-2026-062",
+          "bundle": 15,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 3"
+        },
+        {
+          "poId": "PO-2026-065",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026",
+          "konsumen": "Konsumen 1"
+        }
+      ],
+      "sovenirLog": [
+        {
+          "poId": "PO-2026-060",
+          "total": 100,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 100,
+              "qty": 1
+            }
+          ],
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "poId": "PO-2026-062",
+          "total": 200,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 200,
+              "qty": 1
+            }
+          ],
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "poId": "PO-2026-065",
+          "total": 100000,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 10000,
+              "qty": 10
+            }
+          ],
+          "tanggal": "26 Apr 2026"
+        }
+      ],
+      "komisiDibayar": 1559800,
+      "riwayatCair": [
+        {
+          "tanggal": "1 Mei 2026",
+          "jumlah": 1559800
+        }
+      ]
+    },
+    {
+      "id": 1777040064619,
+      "nama": "Sales 2",
+      "nik": "123",
+      "inisial": "S2",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Sales",
+      "bundle": 27,
+      "komisiKotor": 1980000,
+      "pengeluaran": 1250100,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 45000,
+      "pengeluaranList": [
+        {
+          "id": 1777040273631.8218,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-061 — Tumbler ×1",
+          "jml": 100,
+          "tipe": "souvenir",
+          "poId": "PO-2026-061",
+          "tanggal": "24 Apr 2026"
+        },
+        {
+          "id": 3554080558899,
+          "tripId": "TRIP-1777040494280",
+          "jenis": "Operasional",
+          "tipe": "operasional",
+          "ket": "Trip 24 Apr 2026 (Sewa Rp 300.000, Bensin Rp 150.000, Supir Rp 200.000, Lain Rp 100.000) ÷ 3 sales",
+          "jml": 250000
+        },
+        {
+          "id": 1777040859346,
+          "jenis": "Ganti rugi loss",
+          "ket": "Loss PO PO-2026-063 — Regulator ×1",
+          "jml": 500000,
+          "tipe": "loss",
+          "poId": "PO-2026-063"
+        },
+        {
+          "id": 1777041025106,
+          "jenis": "Ganti rugi loss",
+          "ket": "Loss PO PO-2026-063 — Regulator ×1",
+          "jml": 500000,
+          "tipe": "loss",
+          "poId": "PO-2026-063"
+        }
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-061",
+          "bundle": 10,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 2"
+        },
+        {
+          "poId": "PO-2026-063",
+          "bundle": 20,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 4"
+        }
+      ],
+      "sovenirLog": [
+        {
+          "poId": "PO-2026-061",
+          "total": 100,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 100,
+              "qty": 1
+            }
+          ],
+          "tanggal": "24 Apr 2026"
+        }
+      ],
+      "komisiDibayar": 1980000,
+      "riwayatCair": [
+        {
+          "tanggal": "24 Apr 2026",
+          "jumlah": 1350000
+        },
+        {
+          "tanggal": "24 Apr 2026",
+          "jumlah": 630000
+        }
+      ]
+    },
+    {
+      "id": 1777040075461,
+      "nama": "Sales 3",
+      "nik": "123",
+      "inisial": "S3",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Sales",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 650000,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 45000,
+      "pengeluaranList": [
+        {
+          "id": 3554080569741,
+          "tripId": "TRIP-1777040494280",
+          "jenis": "Operasional",
+          "tipe": "operasional",
+          "ket": "Trip 24 Apr 2026 (Sewa Rp 300.000, Bensin Rp 150.000, Supir Rp 200.000, Lain Rp 100.000) ÷ 3 sales",
+          "jml": 250000
+        },
+        {
+          "id": 3554208515364,
+          "tripId": "TRIP-1777168439903",
+          "jenis": "Operasional",
+          "tipe": "operasional",
+          "ket": "Trip 26 Apr 2026 (Sewa Rp 200.000, Bensin Rp 200.000, Supir Rp 200.000, Lain Rp 200.000) ÷ 2 sales",
+          "jml": 400000
+        }
+      ],
+      "riwayatPO": [],
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040090022,
+      "nama": "Nego 1",
+      "nik": "123",
+      "inisial": "N1",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 39,
+      "komisiKotor": 300000,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 15000,
+      "pengeluaranList": [],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-060",
+          "bundle": 5,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 1",
+          "komisiPending": 75000
+        },
+        {
+          "poId": "PO-2026-062",
+          "bundle": 15,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 3",
+          "komisiPending": 225000
+        },
+        {
+          "poId": "PO-2026-065",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026",
+          "konsumen": "Konsumen 1",
+          "komisiPending": 300000
+        }
+      ],
+      "komisiPending": 285000,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040095861,
+      "nama": "Nego 2",
+      "nik": "123",
+      "inisial": "N2",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 27,
+      "komisiKotor": 300000,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 15000,
+      "pengeluaranList": [],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-061",
+          "bundle": 10,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 2",
+          "komisiPending": 150000
+        },
+        {
+          "poId": "PO-2026-063",
+          "bundle": 20,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 4",
+          "komisiPending": 300000
+        }
+      ],
+      "komisiPending": 105000,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040101609,
+      "nama": "Nego 3",
+      "nik": "123",
+      "inisial": "N3",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 15000,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040117035,
+      "nama": "Collector 1",
+      "nik": "123",
+      "inisial": "C1",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Collector",
+      "bundle": 0,
+      "komisiKotor": 24000,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 1500,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 18000,
+      "riwayatCair": [
+        {
+          "tanggal": "26 Apr 2026",
+          "jumlah": 18000
+        }
+      ]
+    },
+    {
+      "id": 1777040124919,
+      "nama": "Collector 2",
+      "nik": "123",
+      "inisial": "C2",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Collector",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 1500,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040130839,
+      "nama": "Collector 3",
+      "nik": "123",
+      "inisial": "C3",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Collector",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 1500,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040143140,
+      "nama": "KC 1",
+      "nik": "123",
+      "inisial": "K1",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Kepala Cabang",
+      "bundle": 423,
+      "komisiKotor": 200000,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 5000,
+      "pengeluaranList": [],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-060",
+          "bundle": 5,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 1",
+          "komisiPending": 25000
+        },
+        {
+          "poId": "PO-2026-061",
+          "bundle": 10,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 2",
+          "komisiPending": 50000
+        },
+        {
+          "poId": "PO-2026-062",
+          "bundle": 15,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 3",
+          "komisiPending": 75000
+        },
+        {
+          "poId": "PO-2026-063",
+          "bundle": 20,
+          "tanggal": "24 Apr 2026",
+          "konsumen": "Konsumen 4",
+          "komisiPending": 100000
+        },
+        {
+          "poId": "PO-2026-064",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026",
+          "konsumen": "Konsumen 7",
+          "komisiPending": 100000
+        },
+        {
+          "poId": "PO-2026-065",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026",
+          "konsumen": "Konsumen 1",
+          "komisiPending": 100000
+        },
+        {
+          "poId": "PO-2026-066",
+          "bundle": 100,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 6",
+          "komisiPending": 500000
+        },
+        {
+          "poId": "PO-2026-067",
+          "bundle": 5,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 7",
+          "komisiPending": 25000
+        },
+        {
+          "poId": "PO-2026-068",
+          "bundle": 10,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 8",
+          "komisiPending": 50000
+        },
+        {
+          "poId": "PO-2026-069",
+          "bundle": 20,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 8",
+          "komisiPending": 100000
+        },
+        {
+          "poId": "PO-2026-070",
+          "bundle": 200,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 9",
+          "komisiPending": 1000000
+        }
+      ],
+      "komisiPending": 1915000,
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040148720,
+      "nama": "KC 2",
+      "nik": "123",
+      "inisial": "K2",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Kepala Cabang",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 5000,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777040157097,
+      "nama": "Supir 1",
+      "nik": "123",
+      "inisial": "S1",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Supir",
+      "bundle": 0,
+      "komisiKotor": 200000,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 0,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 200000,
+      "riwayatCair": [
+        {
+          "tanggal": "24 Apr 2026",
+          "jumlah": 200000
+        }
+      ]
+    },
+    {
+      "id": 1777040164887,
+      "nama": "Supir 2",
+      "nik": "123",
+      "inisial": "S2",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Supir",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 0,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 0
+    },
+    {
+      "id": 1777168103492,
+      "nama": "Sales 4",
+      "nik": "1234",
+      "inisial": "S4",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Sales",
+      "bundle": 124,
+      "komisiKotor": 2735000,
+      "pengeluaran": 2550000,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "1234",
+      "komisiRate": 45000,
+      "pengeluaranList": [
+        {
+          "id": 1777168287872.3145,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-064 — Tumbler ×50",
+          "jml": 500000,
+          "tipe": "souvenir",
+          "poId": "PO-2026-064",
+          "tanggal": "26 Apr 2026"
+        },
+        {
+          "id": 3554336543395,
+          "tripId": "TRIP-1777168439903",
+          "jenis": "Operasional",
+          "tipe": "operasional",
+          "ket": "Trip 26 Apr 2026 (Sewa Rp 200.000, Bensin Rp 200.000, Supir Rp 200.000, Lain Rp 200.000) ÷ 2 sales",
+          "jml": 400000
+        },
+        {
+          "id": 1777168524739,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 50000,
+          "tanggal": "26 Apr 2026"
+        },
+        {
+          "id": 1777168672693,
+          "jenis": "Ganti rugi loss",
+          "ket": "Loss PO PO-2026-064 — Regulator ×1",
+          "jml": 500000,
+          "tipe": "loss",
+          "poId": "PO-2026-064"
+        },
+        {
+          "id": 1777595508510.1304,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-066 — Tumbler ×100",
+          "jml": 1000000,
+          "tipe": "souvenir",
+          "poId": "PO-2026-066",
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "id": 1777596013662.65,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-067 — Tumbler ×10",
+          "jml": 100000,
+          "tipe": "souvenir",
+          "poId": "PO-2026-067",
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-064",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026",
+          "konsumen": "Konsumen 7"
+        },
+        {
+          "poId": "PO-2026-066",
+          "bundle": 100,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 6"
+        },
+        {
+          "poId": "PO-2026-067",
+          "bundle": 5,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 7"
+        }
+      ],
+      "sovenirLog": [
+        {
+          "poId": "PO-2026-064",
+          "total": 500000,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 10000,
+              "qty": 50
+            }
+          ],
+          "tanggal": "26 Apr 2026"
+        },
+        {
+          "poId": "PO-2026-066",
+          "total": 1000000,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 10000,
+              "qty": 100
+            }
+          ],
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "poId": "PO-2026-067",
+          "total": 100000,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 10000,
+              "qty": 10
+            }
+          ],
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "komisiDibayar": 350000,
+      "riwayatCair": [
+        {
+          "tanggal": "26 Apr 2026",
+          "jumlah": 350000
+        }
+      ]
+    },
+    {
+      "id": 1777168114768,
+      "nama": "Nego 4",
+      "nik": "1234",
+      "inisial": "N4",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 124,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "1234",
+      "komisiRate": 15000,
+      "pengeluaranList": [],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-064",
+          "bundle": 20,
+          "tanggal": "26 Apr 2026",
+          "konsumen": "Konsumen 7",
+          "komisiPending": 300000
+        },
+        {
+          "poId": "PO-2026-066",
+          "bundle": 100,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 6",
+          "komisiPending": 1500000
+        },
+        {
+          "poId": "PO-2026-067",
+          "bundle": 5,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 7",
+          "komisiPending": 75000
+        }
+      ],
+      "komisiPending": 1860000
+    },
+    {
+      "id": 1777168125739,
+      "nama": "Collector 4",
+      "nik": "1234",
+      "inisial": "C4",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Collector",
+      "bundle": 0,
+      "komisiKotor": 10500,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "1234",
+      "komisiRate": 1500,
+      "pengeluaranList": [],
+      "riwayatPO": []
+    },
+    {
+      "id": 1777168147234,
+      "nama": "KC 3",
+      "nik": "1234",
+      "inisial": "K3",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Kepala Cabang",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "1234",
+      "komisiRate": 5000,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiPending": 0
+    },
+    {
+      "id": 1777168160031,
+      "nama": "Supir 3",
+      "nik": "1234",
+      "inisial": "S3",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Supir",
+      "bundle": 0,
+      "komisiKotor": 200000,
+      "pengeluaran": 0,
+      "aktif": "Apr 2026",
+      "aktifStatus": true,
+      "telp": "1234",
+      "komisiRate": 0,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiDibayar": 200000,
+      "riwayatCair": [
+        {
+          "tanggal": "26 Apr 2026",
+          "jumlah": 200000
+        }
+      ]
+    },
+    {
+      "id": 1777597278998,
+      "nama": "Sales 5",
+      "nik": "123",
+      "inisial": "S5",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Sales",
+      "bundle": 29,
+      "komisiKotor": 1305000,
+      "pengeluaran": 750000,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 45000,
+      "pengeluaranList": [
+        {
+          "id": 1777597403838.185,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-068 — Tumbler ×20",
+          "jml": 200000,
+          "tipe": "souvenir",
+          "poId": "PO-2026-068",
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "id": 1777597525249.2876,
+          "jenis": "Souvenir",
+          "ket": "Souvenir PO PO-2026-069 — Tumbler ×5",
+          "jml": 50000,
+          "tipe": "souvenir",
+          "poId": "PO-2026-069",
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "id": 1777766334715,
+          "jenis": "Ganti rugi loss",
+          "ket": "Loss PO PO-2026-068 — Regulator ×1",
+          "jml": 500000,
+          "tipe": "loss",
+          "poId": "PO-2026-068"
+        }
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-068",
+          "bundle": 10,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 8"
+        },
+        {
+          "poId": "PO-2026-069",
+          "bundle": 20,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 8"
+        }
+      ],
+      "sovenirLog": [
+        {
+          "poId": "PO-2026-068",
+          "total": 200000,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 10000,
+              "qty": 20
+            }
+          ],
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "poId": "PO-2026-069",
+          "total": 50000,
+          "detail": [
+            {
+              "nama": "Tumbler",
+              "harga": 10000,
+              "qty": 5
+            }
+          ],
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "komisiDibayar": 810000,
+      "riwayatCair": [
+        {
+          "tanggal": "1 Mei 2026",
+          "jumlah": 810000
+        }
+      ]
+    },
+    {
+      "id": 1777597291302,
+      "nama": "Nego 5",
+      "nik": "123",
+      "inisial": "N5",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 29,
+      "komisiKotor": 300000,
+      "pengeluaran": 0,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 15000,
+      "pengeluaranList": [],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-068",
+          "bundle": 10,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 8",
+          "komisiPending": 150000
+        },
+        {
+          "poId": "PO-2026-069",
+          "bundle": 20,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 8",
+          "komisiPending": 300000
+        }
+      ],
+      "komisiPending": 135000
+    },
+    {
+      "id": 1777597306467,
+      "nama": "Coll 5",
+      "nik": "123",
+      "inisial": "C5",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Collector",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 50000,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 1500,
+      "pengeluaranList": [
+        {
+          "id": 1777598948047,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 50000,
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "riwayatPO": []
+    },
+    {
+      "id": 1777597328424,
+      "nama": "KC 5",
+      "nik": "123",
+      "inisial": "K5",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Kepala Cabang",
+      "bundle": 0,
+      "komisiKotor": 100000,
+      "pengeluaran": 0,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 5000,
+      "pengeluaranList": [],
+      "riwayatPO": [],
+      "komisiPending": 0
+    },
+    {
+      "id": 1777598971933,
+      "nama": "Sales 6",
+      "nik": "123",
+      "inisial": "S6",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Sales",
+      "bundle": 200,
+      "komisiKotor": 8450000,
+      "pengeluaran": 550000,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 45000,
+      "pengeluaranList": [
+        {
+          "id": 1777599319524,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 500000,
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "id": 1777599330703,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 50000,
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-070",
+          "bundle": 200,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 9"
+        }
+      ]
+    },
+    {
+      "id": 1777598980805,
+      "nama": "Nego 6",
+      "nik": "123",
+      "inisial": "N6",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 200,
+      "komisiKotor": 2500000,
+      "pengeluaran": 1560000,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 15000,
+      "pengeluaranList": [
+        {
+          "id": 1777602363112,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 500000,
+          "tanggal": "1 Mei 2026"
+        },
+        {
+          "id": 1777629717338,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 500000,
+          "tgl": "1 Mei 2026"
+        },
+        {
+          "id": 1777629731035,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 500000,
+          "tgl": "1 Mei 2026"
+        },
+        {
+          "id": 1777629758171,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 50000,
+          "tgl": "1 Mei 2026"
+        },
+        {
+          "id": 1777629768176,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 5000,
+          "tgl": "1 Mei 2026"
+        },
+        {
+          "id": 1777629780696,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 2500,
+          "tgl": "1 Mei 2026"
+        },
+        {
+          "id": 1777629805251,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 2500,
+          "tgl": "1 Mei 2026"
+        }
+      ],
+      "riwayatPO": [
+        {
+          "poId": "PO-2026-070",
+          "bundle": 200,
+          "tanggal": "1 Mei 2026",
+          "konsumen": "Konsumen 9",
+          "komisiPending": 3000000
+        }
+      ],
+      "komisiPending": 0,
+      "cairList": [
+        {
+          "id": 1777629791725,
+          "jml": 942500,
+          "ket": "",
+          "tgl": "1 Mei 2026"
+        }
+      ]
+    },
+    {
+      "id": 1777598988279,
+      "nama": "Coll 6",
+      "nik": "123",
+      "inisial": "C6",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Collector",
+      "bundle": 0,
+      "komisiKotor": 7500,
+      "pengeluaran": 0,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 1500,
+      "pengeluaranList": [],
+      "riwayatPO": []
+    },
+    {
+      "id": 1777598999397,
+      "nama": "KC 6",
+      "nik": "123",
+      "inisial": "K6",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Kepala Cabang",
+      "bundle": 0,
+      "komisiKotor": 950000,
+      "pengeluaran": 50000,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 5000,
+      "pengeluaranList": [
+        {
+          "id": 1777600785896,
+          "jenis": "Kasbon",
+          "ket": "",
+          "jml": 50000,
+          "tanggal": "1 Mei 2026"
+        }
+      ],
+      "riwayatPO": [],
+      "komisiPending": 0
+    },
+    {
+      "id": 1777746111818,
+      "nama": "Nego 7",
+      "nik": "123",
+      "inisial": "N7",
+      "warna": "#1e1d2e",
+      "warnaTxt": "#AFA9EC",
+      "peran": "Nego",
+      "bundle": 0,
+      "komisiKotor": 0,
+      "pengeluaran": 0,
+      "aktif": "Mei 2026",
+      "aktifStatus": true,
+      "telp": "123",
+      "komisiRate": 15000,
+      "pengeluaranList": [],
+      "riwayatPO": []
+    }
+  ],
+  "selectedEntitas": 1777597291302,
+  "currentEntitasTab": "Nego",
+  "bundleRows": [
+    {
+      "produk": "Paket 1",
+      "harga": 1000000,
+      "qty": 1,
+      "id": 1777039906318
+    }
+  ],
+  "auditLog": [
+    {
+      "ts": "2026-05-02T23:58:55.505Z",
+      "tgl": "2 Mei 2026",
+      "jam": "06.58",
+      "msg": "Loss PO PO-2026-068: bundle 10→9, beban sales Rp 500.000"
+    },
+    {
+      "ts": "2026-05-02T18:21:52.385Z",
+      "tgl": "2 Mei 2026",
+      "jam": "01.21",
+      "msg": "Tambah entitas: Nego 7 (Nego)"
+    },
+    {
+      "ts": "2026-05-01T10:03:25.661Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.03",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 2.500"
+    },
+    {
+      "ts": "2026-05-01T10:03:12.557Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.03",
+      "msg": "Cairkan komisi Nego 6: Rp 942.500"
+    },
+    {
+      "ts": "2026-05-01T10:03:01.121Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.03",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 2.500"
+    },
+    {
+      "ts": "2026-05-01T10:02:48.579Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.02",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 5.000"
+    },
+    {
+      "ts": "2026-05-01T10:02:38.928Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.02",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 50.000"
+    },
+    {
+      "ts": "2026-05-01T10:02:11.501Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.02",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 500.000"
+    },
+    {
+      "ts": "2026-05-01T10:01:57.788Z",
+      "tgl": "1 Mei 2026",
+      "jam": "17.01",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 500.000"
+    },
+    {
+      "ts": "2026-05-01T02:26:03.561Z",
+      "tgl": "1 Mei 2026",
+      "jam": "09.26",
+      "msg": "Pengeluaran Nego 6: Kasbon Rp 500.000"
+    },
+    {
+      "ts": "2026-05-01T02:00:58.535Z",
+      "tgl": "1 Mei 2026",
+      "jam": "09.00",
+      "msg": "Upload logo perusahaan (sidebar)"
+    },
+    {
+      "ts": "2026-05-01T01:59:46.161Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.59",
+      "msg": "Pengeluaran KC 6: Kasbon Rp 50.000"
+    },
+    {
+      "ts": "2026-05-01T01:58:34.990Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.58",
+      "msg": "Cairkan komisi Sales 1: Rp 1.559.800"
+    },
+    {
+      "ts": "2026-05-01T01:58:18.404Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.58",
+      "msg": "Bayar termin 5 PO PO-2026-070: Rp 40.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:58:18.015Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.58",
+      "msg": "Komisi Sales Sales 6 cair 40% PO PO-2026-070: Rp 3.600.000"
+    },
+    {
+      "ts": "2026-05-01T01:57:58.191Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.57",
+      "msg": "Bayar termin 4 PO PO-2026-070: Rp 40.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:35:31.140Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.35",
+      "msg": "Pengeluaran Sales 6: Kasbon Rp 50.000"
+    },
+    {
+      "ts": "2026-05-01T01:35:20.026Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.35",
+      "msg": "Pengeluaran Sales 6: Kasbon Rp 500.000"
+    },
+    {
+      "ts": "2026-05-01T01:35:02.182Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.35",
+      "msg": "Bayar termin 3 PO PO-2026-070: Rp 40.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:35:00.374Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.35",
+      "msg": "Komisi Sales Sales 6 cair 60% PO PO-2026-070: Rp 5.400.000"
+    },
+    {
+      "ts": "2026-05-01T01:34:50.939Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.34",
+      "msg": "Bayar termin 2 PO PO-2026-070: Rp 40.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:34:37.923Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.34",
+      "msg": "Bayar termin 1 PO PO-2026-070: Rp 40.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:31:18.114Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.31",
+      "msg": "Cetak PO PO-2026-070"
+    },
+    {
+      "ts": "2026-05-01T01:31:14.059Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.31",
+      "msg": "Buat PO PO-2026-070 konsumen Konsumen 9"
+    },
+    {
+      "ts": "2026-05-01T01:30:21.851Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.30",
+      "msg": "Tambah konsumen: Konsumen 9"
+    },
+    {
+      "ts": "2026-05-01T01:29:59.687Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.29",
+      "msg": "Tambah entitas: KC 6 (Kepala Cabang)"
+    },
+    {
+      "ts": "2026-05-01T01:29:48.484Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.29",
+      "msg": "Tambah entitas: Coll 6 (Collector)"
+    },
+    {
+      "ts": "2026-05-01T01:29:41.024Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.29",
+      "msg": "Tambah entitas: Nego 6 (Nego)"
+    },
+    {
+      "ts": "2026-05-01T01:29:32.145Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.29",
+      "msg": "Tambah entitas: Sales 6 (Sales)"
+    },
+    {
+      "ts": "2026-05-01T01:29:08.532Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.29",
+      "msg": "Pengeluaran Coll 5: Kasbon Rp 50.000"
+    },
+    {
+      "ts": "2026-05-01T01:28:19.882Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.28",
+      "msg": "Bayar termin 6 PO PO-2026-068: Rp 1.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:28:02.406Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.28",
+      "msg": "Bayar termin 5 PO PO-2026-068: Rp 1.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:27:40.220Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.27",
+      "msg": "Bayar termin 6 PO PO-2026-069: Rp 3.200.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:27:39.866Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.27",
+      "msg": "Komisi Sales Sales 5 cair 40% PO PO-2026-069: Rp 360.000"
+    },
+    {
+      "ts": "2026-05-01T01:27:31.038Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.27",
+      "msg": "Bayar termin 5 PO PO-2026-069: Rp 3.200.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:27:23.198Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.27",
+      "msg": "Bayar termin 4 PO PO-2026-069: Rp 3.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:11:11.195Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.11",
+      "msg": "Cairkan komisi Sales 5: Rp 810.000"
+    },
+    {
+      "ts": "2026-05-01T01:10:50.992Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.10",
+      "msg": "Bayar termin 3 PO PO-2026-069: Rp 400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:10:50.502Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.10",
+      "msg": "Komisi Sales Sales 5 cair 60% PO PO-2026-069: Rp 540.000"
+    },
+    {
+      "ts": "2026-05-01T01:08:24.315Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.08",
+      "msg": "Bayar termin 4 PO PO-2026-068: Rp 1.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:08:23.668Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.08",
+      "msg": "Komisi Sales Sales 5 cair 60% PO PO-2026-068: Rp 270.000"
+    },
+    {
+      "ts": "2026-05-01T01:08:05.082Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.08",
+      "msg": "Bayar termin 3 PO PO-2026-068: Rp 1.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:07:56.633Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.07",
+      "msg": "Bayar termin 2 PO PO-2026-068: Rp 1.500.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:07:49.200Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.07",
+      "msg": "Bayar termin 1 PO PO-2026-068: Rp 1.500.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:06:21.483Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.06",
+      "msg": "Bayar termin 3 PO PO-2026-069: Rp 3.000.000 (Kurang bayar Rp 400.000)"
+    },
+    {
+      "ts": "2026-05-01T01:06:08.865Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.06",
+      "msg": "Bayar termin 2 PO PO-2026-069: Rp 3.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:06:00.883Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.06",
+      "msg": "Bayar termin 1 PO PO-2026-069: Rp 3.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T01:05:27.683Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.05",
+      "msg": "Cetak PO PO-2026-069"
+    },
+    {
+      "ts": "2026-05-01T01:05:25.249Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.05",
+      "msg": "Buat PO PO-2026-069 konsumen Konsumen 8"
+    },
+    {
+      "ts": "2026-05-01T01:03:26.199Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.03",
+      "msg": "Cetak PO PO-2026-068"
+    },
+    {
+      "ts": "2026-05-01T01:03:23.838Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.03",
+      "msg": "Buat PO PO-2026-068 konsumen Konsumen 8"
+    },
+    {
+      "ts": "2026-05-01T01:02:35.286Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.02",
+      "msg": "Tambah konsumen: Konsumen 8"
+    },
+    {
+      "ts": "2026-05-01T01:02:08.786Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.02",
+      "msg": "Tambah entitas: KC 5 (Kepala Cabang)"
+    },
+    {
+      "ts": "2026-05-01T01:01:46.877Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.01",
+      "msg": "Tambah entitas: Coll 5 (Collector)"
+    },
+    {
+      "ts": "2026-05-01T01:01:31.762Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.01",
+      "msg": "Tambah entitas: Nego 5 (Nego)"
+    },
+    {
+      "ts": "2026-05-01T01:01:19.433Z",
+      "tgl": "1 Mei 2026",
+      "jam": "08.01",
+      "msg": "Tambah entitas: Sales 5 (Sales)"
+    },
+    {
+      "ts": "2026-05-01T00:40:48.293Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.40",
+      "msg": "Bayar termin 3 PO PO-2026-067: Rp 850.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T00:40:47.864Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.40",
+      "msg": "Komisi Sales Sales 4 cair 60% PO PO-2026-067: Rp 135.000"
+    },
+    {
+      "ts": "2026-05-01T00:40:39.886Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.40",
+      "msg": "Bayar termin 2 PO PO-2026-067: Rp 850.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T00:40:31.625Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.40",
+      "msg": "Bayar termin 1 PO PO-2026-067: Rp 850.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T00:40:15.855Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.40",
+      "msg": "Cetak PO PO-2026-067"
+    },
+    {
+      "ts": "2026-05-01T00:40:13.662Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.40",
+      "msg": "Buat PO PO-2026-067 konsumen Konsumen 7"
+    },
+    {
+      "ts": "2026-05-01T00:38:39.951Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.38",
+      "msg": "Bayar termin 2 PO PO-2026-066: Rp 2.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T00:38:39.518Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.38",
+      "msg": "Komisi Sales Sales 4 cair 60% PO PO-2026-066: Rp 2.700.000"
+    },
+    {
+      "ts": "2026-05-01T00:36:08.511Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.36",
+      "msg": "Bayar termin 3 PO PO-2026-066: Rp 17.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T00:35:43.481Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.35",
+      "msg": "Bayar termin 2 PO PO-2026-066: Rp 15.000.000 (Kurang bayar Rp 2.000.000)"
+    },
+    {
+      "ts": "2026-05-01T00:35:22.910Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.35",
+      "msg": "Bayar termin 1 PO PO-2026-066: Rp 17.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-05-01T00:31:57.968Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.31",
+      "msg": "Cetak PO PO-2026-066"
+    },
+    {
+      "ts": "2026-05-01T00:31:48.511Z",
+      "tgl": "1 Mei 2026",
+      "jam": "07.31",
+      "msg": "Buat PO PO-2026-066 konsumen Konsumen 6"
+    },
+    {
+      "ts": "2026-04-26T22:38:28.431Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.38",
+      "msg": "Bayar termin 6 PO PO-2026-065: Rp 3.007.228 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T22:38:27.399Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.38",
+      "msg": "Komisi Sales Sales 1 cair 40% PO PO-2026-065: Rp 342.000"
+    },
+    {
+      "ts": "2026-04-26T22:38:18.731Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.38",
+      "msg": "Bayar termin 2 PO PO-2026-065: Rp 195.181 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T22:38:16.461Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.38",
+      "msg": "Komisi Sales Sales 1 cair 60% PO PO-2026-065: Rp 513.000"
+    },
+    {
+      "ts": "2026-04-26T22:38:06.523Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.38",
+      "msg": "Bayar termin 5 PO PO-2026-065: Rp 3.007.229 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T22:37:58.565Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.37",
+      "msg": "Bayar termin 4 PO PO-2026-065: Rp 3.195.181 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T22:37:49.553Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.37",
+      "msg": "Bayar termin 3 PO PO-2026-065: Rp 3.195.181 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T22:37:26.755Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.37",
+      "msg": "Cairkan komisi Collector 1: Rp 18.000"
+    },
+    {
+      "ts": "2026-04-26T22:36:33.281Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.36",
+      "msg": "Retur PO PO-2026-065: 1 bundle, kurangi tagihan Rp 1.000.000"
+    },
+    {
+      "ts": "2026-04-26T22:36:16.377Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.36",
+      "msg": "Bayar termin 2 PO PO-2026-065: Rp 3.000.000 (Kurang bayar Rp 400.000)"
+    },
+    {
+      "ts": "2026-04-26T22:36:00.262Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.36",
+      "msg": "Bayar termin 1 PO PO-2026-065: Rp 3.400.000 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T22:35:39.499Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.35",
+      "msg": "Cetak PO PO-2026-065"
+    },
+    {
+      "ts": "2026-04-26T22:35:36.116Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.35",
+      "msg": "Buat PO PO-2026-065 konsumen Konsumen 1"
+    },
+    {
+      "ts": "2026-04-26T22:14:40.572Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.14",
+      "msg": "Export Excel global: April 2026"
+    },
+    {
+      "ts": "2026-04-26T22:14:09.722Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.14",
+      "msg": "Export per individu sales: April 2026"
+    },
+    {
+      "ts": "2026-04-26T22:13:49.195Z",
+      "tgl": "26 Apr 2026",
+      "jam": "05.13",
+      "msg": "Export Excel global: April 2026"
+    },
+    {
+      "ts": "2026-04-26T02:01:59.018Z",
+      "tgl": "26 Apr 2026",
+      "jam": "09.01",
+      "msg": "Cairkan komisi Supir 3: Rp 200.000"
+    },
+    {
+      "ts": "2026-04-26T01:57:53.510Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.57",
+      "msg": "Loss PO PO-2026-064: bundle 20→19, beban sales Rp 500.000"
+    },
+    {
+      "ts": "2026-04-26T01:57:38.976Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.57",
+      "msg": "Bayar termin 1 PO PO-2026-064: Rp 4.000.000 (Lunas)"
+    },
+    {
+      "ts": "2026-04-26T01:55:39.929Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.55",
+      "msg": "Cairkan komisi Sales 4: Rp 350.000"
+    },
+    {
+      "ts": "2026-04-26T01:55:25.479Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.55",
+      "msg": "Pengeluaran Sales 4: Kasbon Rp 50.000"
+    },
+    {
+      "ts": "2026-04-26T01:54:00.784Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.54",
+      "msg": "Trip 26 Apr 2026: Rp 800.000, 2 sales, supir Supir 3"
+    },
+    {
+      "ts": "2026-04-26T01:51:30.377Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.51",
+      "msg": "Cetak PO PO-2026-064"
+    },
+    {
+      "ts": "2026-04-26T01:51:27.873Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.51",
+      "msg": "Buat PO PO-2026-064 konsumen Konsumen 7"
+    },
+    {
+      "ts": "2026-04-26T01:49:20.286Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.49",
+      "msg": "Tambah entitas: Supir 3 (Supir)"
+    },
+    {
+      "ts": "2026-04-26T01:49:07.498Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.49",
+      "msg": "Tambah entitas: KC 3 (Kepala Cabang)"
+    },
+    {
+      "ts": "2026-04-26T01:48:46.070Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.48",
+      "msg": "Tambah entitas: Collector 4 (Collector)"
+    },
+    {
+      "ts": "2026-04-26T01:48:35.078Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.48",
+      "msg": "Tambah entitas: Nego 4 (Nego)"
+    },
+    {
+      "ts": "2026-04-26T01:48:24.003Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.48",
+      "msg": "Tambah entitas: Sales 4 (Sales)"
+    },
+    {
+      "ts": "2026-04-26T01:47:16.297Z",
+      "tgl": "26 Apr 2026",
+      "jam": "08.47",
+      "msg": "Tambah konsumen: Konsumen 7"
+    },
+    {
+      "ts": "2026-04-25T16:29:30.230Z",
+      "tgl": "25 Apr 2026",
+      "jam": "23.29",
+      "msg": "Tambah konsumen: Konsumen 6"
+    },
+    {
+      "ts": "2026-04-25T16:29:10.122Z",
+      "tgl": "25 Apr 2026",
+      "jam": "23.29",
+      "msg": "Tambah konsumen: Konsumen 5"
+    },
+    {
+      "waktu": "24/4/2026, 21.35.22",
+      "aksi": "Cairkan komisi Sales 2: Rp 630.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.34.07",
+      "aksi": "Bayar termin 10 PO PO-2026-063: Rp 1.660.898 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.34.06",
+      "aksi": "Komisi Sales Sales 2 cair 40% PO PO-2026-063: Rp 306.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.34.01",
+      "aksi": "Bayar termin 9 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.54",
+      "aksi": "Bayar termin 8 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.46",
+      "aksi": "Bayar termin 7 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.41",
+      "aksi": "Bayar termin 6 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.35",
+      "aksi": "Bayar termin 5 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.31",
+      "aksi": "Komisi Sales Sales 2 cair 60% PO PO-2026-063: Rp 459.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.26",
+      "aksi": "Bayar termin 4 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.20",
+      "aksi": "Bayar termin 3 PO PO-2026-063: Rp 1.660.900 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.33.13",
+      "aksi": "Bayar termin 2 PO PO-2026-063: Rp 712.802 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.32.42",
+      "aksi": "Retur PO PO-2026-063: 1 bundle, kurangi tagihan Rp 1.000.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.30.26",
+      "aksi": "Loss PO PO-2026-063: bundle 19→18, beban sales Rp 500.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.27.40",
+      "aksi": "Loss PO PO-2026-063: bundle 20→19, beban sales Rp 500.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.27.14",
+      "aksi": "Bayar termin 2 PO PO-2026-063: Rp 1.000.000 (Kurang bayar Rp 1.000.000)"
+    },
+    {
+      "waktu": "24/4/2026, 21.27.05",
+      "aksi": "Bayar termin 1 PO PO-2026-063: Rp 2.000.000 (Lunas)"
+    },
+    {
+      "waktu": "24/4/2026, 21.26.45",
+      "aksi": "Pengeluaran Sales 1: Kasbon Rp 50.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.25.19",
+      "aksi": "Cairkan komisi Supir 1: Rp 200.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.24.50",
+      "aksi": "Cairkan komisi Sales 2: Rp 1.350.000"
+    },
+    {
+      "waktu": "24/4/2026, 21.21.35",
+      "aksi": "Trip 24 Apr 2026: Rp 750.000, 3 sales, supir Supir 1"
+    },
+    {
+      "waktu": "24/4/2026, 21.19.47",
+      "aksi": "Cetak PO PO-2026-063"
+    },
+    {
+      "waktu": "24/4/2026, 21.19.44",
+      "aksi": "Buat PO PO-2026-063 konsumen Konsumen 4"
+    },
+    {
+      "waktu": "24/4/2026, 21.18.42",
+      "aksi": "Cetak PO PO-2026-062"
+    },
+    {
+      "waktu": "24/4/2026, 21.18.39",
+      "aksi": "Buat PO PO-2026-062 konsumen Konsumen 3"
+    },
+    {
+      "waktu": "24/4/2026, 21.17.56",
+      "aksi": "Cetak PO PO-2026-061"
+    },
+    {
+      "waktu": "24/4/2026, 21.17.53",
+      "aksi": "Buat PO PO-2026-061 konsumen Konsumen 2"
+    },
+    {
+      "waktu": "24/4/2026, 21.17.16",
+      "aksi": "Cetak PO PO-2026-060"
+    },
+    {
+      "waktu": "24/4/2026, 21.17.13",
+      "aksi": "Buat PO PO-2026-060 konsumen Konsumen 1"
+    },
+    {
+      "waktu": "24/4/2026, 21.16.05",
+      "aksi": "Tambah entitas: Supir 2 (Supir)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.57",
+      "aksi": "Tambah entitas: Supir 1 (Supir)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.49",
+      "aksi": "Tambah entitas: KC 2 (Kepala Cabang)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.43",
+      "aksi": "Tambah entitas: KC 1 (Kepala Cabang)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.31",
+      "aksi": "Tambah entitas: Collector 3 (Collector)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.25",
+      "aksi": "Tambah entitas: Collector 2 (Collector)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.17",
+      "aksi": "Tambah entitas: Collector 1 (Collector)"
+    },
+    {
+      "waktu": "24/4/2026, 21.15.02",
+      "aksi": "Tambah entitas: Nego 3 (Nego)"
+    },
+    {
+      "waktu": "24/4/2026, 21.14.57",
+      "aksi": "Tambah entitas: Nego 2 (Nego)"
+    },
+    {
+      "waktu": "24/4/2026, 21.14.50",
+      "aksi": "Tambah entitas: Nego 1 (Nego)"
+    },
+    {
+      "waktu": "24/4/2026, 21.14.36",
+      "aksi": "Tambah entitas: Sales 3 (Sales)"
+    },
+    {
+      "waktu": "24/4/2026, 21.14.25",
+      "aksi": "Tambah entitas: Sales 2 (Sales)"
+    },
+    {
+      "waktu": "24/4/2026, 21.14.17",
+      "aksi": "Tambah entitas: Sales 1 (Sales)"
+    },
+    {
+      "waktu": "24/4/2026, 21.14.04",
+      "aksi": "Tambah konsumen: Konsumen 4"
+    },
+    {
+      "waktu": "24/4/2026, 21.13.54",
+      "aksi": "Tambah konsumen: Konsumen 3"
+    },
+    {
+      "waktu": "24/4/2026, 21.13.40",
+      "aksi": "Tambah konsumen: Konsumen 2"
+    },
+    {
+      "waktu": "24/4/2026, 21.12.41",
+      "aksi": "Tambah konsumen: Konsumen 1"
+    },
+    {
+      "waktu": "24/4/2026, 21.12.19",
+      "aksi": "Barang masuk: 1000x Tumbler kondisi good"
+    },
+    {
+      "waktu": "24/4/2026, 21.11.46",
+      "aksi": "Buat bundle: Paket 1"
+    },
+    {
+      "waktu": "24/4/2026, 21.10.07",
+      "aksi": "Barang masuk: 1000x Airandom kondisi good"
+    },
+    {
+      "waktu": "24/4/2026, 21.09.42",
+      "aksi": "Barang masuk: 1000x Regulator kondisi good"
+    }
+  ],
+  "nextPONum": 71,
+  "nextInvId": 5,
+  "nextRiwayatId": 4,
+  "bundleDef": [
+    {
+      "id": 1777039906318,
+      "nama": "Paket 1",
+      "harga": 1000000,
+      "desc": "",
+      "komponen": [
+        {
+          "invId": 1,
+          "nama": "Regulator",
+          "qty": 1
+        },
+        {
+          "invId": 2,
+          "nama": "Airandom",
+          "qty": 1
+        }
+      ],
+      "aktif": true,
+      "dibuat": "24/4/2026"
+    }
+  ],
+  "_entitasPeriode": {},
+  "tripList": [
+    {
+      "id": "TRIP-1777168439903",
+      "tanggal": "26 Apr 2026",
+      "tanggalRaw": "2026-04-26",
+      "supirId": 1777168160031,
+      "supirNama": "Supir 3",
+      "salesIds": [
+        1777040075461,
+        1777168103492
+      ],
+      "salesNama": [
+        "Sales 3",
+        "Sales 4"
+      ],
+      "konsumen": "Konsumen 7",
+      "tujuan": "",
+      "sewa": 200000,
+      "bensin": 200000,
+      "upahSupir": 200000,
+      "lain": 200000,
+      "total": 800000,
+      "perSales": 400000,
+      "ket": ""
+    },
+    {
+      "id": "TRIP-1777040494280",
+      "tanggal": "24 Apr 2026",
+      "tanggalRaw": "2026-04-24",
+      "supirId": 1777040157097,
+      "supirNama": "Supir 1",
+      "salesIds": [
+        1777040057585,
+        1777040064619,
+        1777040075461
+      ],
+      "salesNama": [
+        "Sales 1",
+        "Sales 2",
+        "Sales 3"
+      ],
+      "konsumen": "Konsumen 4",
+      "tujuan": "",
+      "sewa": 300000,
+      "bensin": 150000,
+      "upahSupir": 200000,
+      "lain": 100000,
+      "total": 750000,
+      "perSales": 250000,
+      "ket": ""
+    }
+  ]
+}

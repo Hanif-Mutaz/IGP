@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IGP</title>
+    <style>
+        /* ── THEME VARIABLES ── */
+        :root {
+            --bg: #111110;
+            --bg2: #1a1a18;
+            --bg3: #161614;
+            --bg4: #222220;
+            --bg5: #1e1e1c;
+            --border: #2c2c2a;
+            --border2: #1e1e1c;
+            --text: #e8e6df;
+            --text2: #d3d1c7;
+            --text3: #888780;
+            --text4: #5F5E5A;
+            --accent: #7F77DD;
+            --accent2: #AFA9EC;
+            --accent-bg: #1e1d2e;
+            --accent-border: #3C3489;
+        }
+
+        /* ── LIGHT THEME ── */
+        body.light {
+            --bg: #f4f3f0;
+            --bg2: #ffffff;
+            --bg3: #eceae5;
+            --bg4: #e4e2dc;
+            --bg5: #ede9e3;
+            --border: #d4d0c8;
+            --border2: #e0ddd6;
+            --text: #1a1916;
+            --text2: #2e2c28;
+            --text3: #6b6860;
+            --text4: #9b9890;
+            --accent: #5B52C8;
+            --accent2: #5B52C8;
+            --accent-bg: #eeecfb;
+            --accent-border: #9b96e8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+            overflow: hidden
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            background: var(--bg2);
+            border-right: 0.5px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh
+        }
+
+        .logo {
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-img-wrap {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--accent-bg);
+            border: 0.5px solid var(--accent-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .logo-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain
+        }
+
+        .logo-img-placeholder {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: .5px;
+        }
+
+        .logo-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: .3px;
+            line-height: 1.2;
+        }
+
+        .logo-text span {
+            color: var(--accent)
+        }
+
+        .logo-sub {
+            font-size: 10px;
+            color: var(--text4);
+            letter-spacing: .3px
+        }
+
+        .nav-section {
+            padding: 12px 0
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: var(--text4);
+            padding: 6px 16px;
+            letter-spacing: .8px;
+            text-transform: uppercase
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 16px;
+            cursor: pointer;
+            color: var(--text3);
+            font-size: 13px;
+            border-left: 2px solid transparent;
+            transition: all .15s;
+            user-select: none
+        }
+
+        .nav-item:hover {
+            background: var(--bg4);
+            color: var(--text2)
+        }
+
+        .nav-item.active {
+            color: var(--accent2);
+            border-left-color: var(--accent);
+            background: var(--accent-bg)
+        }
+
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: .65
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1
+        }
+
+        .nav-bottom {
+            margin-top: auto;
+            border-top: 0.5px solid var(--border);
+            padding: 12px 0
+        }
+
+        /* MAIN */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh
+        }
+
+        .topbar {
+            padding: 14px 24px;
+            border-bottom: 0.5px solid var(--border);
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .topbar-title {
+            font-size: 15px;
+            font-weight: 500
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .notif-btn {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 0.5px solid var(--border);
+            background: var(--bg2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 7px;
+            height: 7px;
+            background: #E24B4A;
+            border-radius: 50%;
+            border: 1.5px solid var(--bg3)
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #3C3489;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: #CECBF6
+        }
+
+        /* COMPONENTS */
+        .btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: 0.5px solid var(--border);
+            background: transparent;
+            color: var(--text3);
+            font-size: 13px;
+            cursor: pointer;
+            transition: .15s
+        }
+
+        .btn:hover {
+            background: var(--bg2);
+            color: var(--text2)
+        }
+
+        .btn-primary {
+            border-color: var(--accent-border);
+            background: var(--accent-bg);
+            color: var(--accent2)
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-bg);
+            filter: brightness(0.92)
+        }
+
+        .btn-success {
+            border-color: #0F6E56;
+            background: #04342C;
+            color: #5DCAA5
+        }
+
+        .btn-success:hover {
+            background: #085041
+        }
+
+        .btn-danger {
+            border-color: #501313;
+            background: #1a1010;
+            color: #F09595
+        }
+
+        .btn-danger:hover {
+            background: #791F1F
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-block
+        }
+
+        .badge-good {
+            background: #04342C;
+            color: #5DCAA5
+        }
+
+        .badge-reject {
+            background: #501313;
+            color: #F09595
+        }
+
+        .badge-warn {
+            background: #412402;
+            color: #FAC775
+        }
+
+        .badge-active {
+            background: var(--accent-bg);
+            color: var(--accent2)
+        }
+
+        .badge-late {
+            background: #501313;
+            color: #F09595
+        }
+
+        .badge-pending {
+            background: var(--bg2);
+            color: var(--text4)
+        }
+
+        .badge-sovenir {
+            background: #0c2236;
+            color: #85B7EB
+        }
+
+        .card {
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text3);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: .5px
+        }
+
+        .stat-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .stat-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .stat-card {
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 10px;
+            padding: 14px
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text4);
+            margin-bottom: 6px;
+            letter-spacing: .3px
+        }
+
+        .stat-val {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -.3px
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: var(--text4);
+            margin-top: 4px
+        }
+
+        .tbl-wrap {
+            border: 0.5px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th {
+            padding: 10px 14px;
+            font-size: 11px;
+            color: var(--text4);
+            background: var(--bg2);
+            text-align: left;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            border-bottom: 0.5px solid var(--border);
+            font-weight: 500
+        }
+
+        td {
+            padding: 11px 14px;
+            font-size: 13px;
+            color: var(--text2);
+            border-bottom: 0.5px solid var(--border2)
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        tr:hover td {
+            background: var(--bg5)
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 0.5px solid var(--border);
+            margin-bottom: 16px
+        }
+
+        .tab {
+            padding: 9px 16px;
+            font-size: 13px;
+            color: var(--text3);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -0.5px;
+            transition: .15s
+        }
+
+        .tab:hover {
+            color: var(--text2)
+        }
+
+        .tab.active {
+            color: var(--accent2);
+            border-bottom-color: var(--accent)
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .filter-input {
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 12px;
+            color: var(--text2);
+            font-size: 13px;
+            width: 200px;
+            outline: none
+        }
+
+        .filter-input:focus {
+            border-color: var(--accent)
+        }
+
+        .filter-select {
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            padding: 7px 12px;
+            color: var(--text2);
+            font-size: 13px;
+            outline: none
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent)
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg5);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px
+        }
+
+        .section-head {
+            font-size: 11px;
+            color: var(--text4);
+            margin-bottom: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            padding-bottom: 8px;
+            border-bottom: 0.5px solid var(--border)
+        }
+
+        .toggle {
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .2s
+        }
+
+        .toggle.on {
+            background: #1D9E75
+        }
+
+        .toggle.off {
+            background: var(--border)
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            transition: .15s
+        }
+
+        .toggle.on::after {
+            left: 19px
+        }
+
+        .toggle.off::after {
+            left: 3px
+        }
+
+        .srow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 0.5px solid var(--border2);
+            font-size: 13px
+        }
+
+        .srow:last-child {
+            border-bottom: none
+        }
+
+        .slabel {
+            color: var(--text4);
+            font-size: 12px
+        }
+
+        .avatar-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            flex-shrink: 0
+        }
+
+        /* SPLIT PANEL */
+        .split-layout {
+            display: flex;
+            height: calc(100vh - 53px);
+            overflow: hidden
+        }
+
+        .list-panel {
+            width: 300px;
+            border-right: 0.5px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0
+        }
+
+        .list-panel-header {
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--border);
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0
+        }
+
+        .list-scroll {
+            overflow-y: auto;
+            flex: 1
+        }
+
+        .list-item {
+            padding: 12px 16px;
+            border-bottom: 0.5px solid var(--border2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: .1s
+        }
+
+        .list-item:hover {
+            background: var(--bg2)
+        }
+
+        .list-item.active {
+            background: var(--accent-bg);
+            border-left: 2px solid var(--accent)
+        }
+
+        .detail-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        .detail-scroll {
+            overflow-y: auto;
+            flex: 1;
+            padding: 20px
+        }
+
+        /* CICILAN */
+        .cicilan-mode-btns {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 7px;
+            border-radius: 8px;
+            border: 0.5px solid var(--border);
+            background: transparent;
+            color: var(--text3);
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: .15s
+        }
+
+        .mode-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-bg);
+            color: var(--accent2)
+        }
+
+        .cicilan-row-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            background: var(--bg);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 5px
+        }
+
+        .cicilan-num {
+            font-size: 11px;
+            color: var(--text4);
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0
+        }
+
+        /* CHART */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 110px;
+            margin-bottom: 8px
+        }
+
+        .bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            gap: 3px;
+            height: 100%;
+            justify-content: flex-end
+        }
+
+        .bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            min-height: 3px
+        }
+
+        .bar-label {
+            font-size: 10px;
+            color: var(--text4)
+        }
+
+        .bar-val {
+            font-size: 10px;
+            color: var(--text3)
+        }
+
+        /* NOTIF */
+        .notif-row {
+            display: flex;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 0.5px solid var(--border2);
+            align-items: flex-start
+        }
+
+        .notif-row:last-child {
+            border-bottom: none
+        }
+
+        .notif-dot2 {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0
+        }
+
+        .notif-text {
+            font-size: 12px;
+            color: var(--text3);
+            line-height: 1.5
+        }
+
+        .notif-text strong {
+            color: var(--text2);
+            font-weight: 500
+        }
+
+        /* SUMMARY */
+        .summary-sticky {
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            position: sticky;
+            top: 0
+        }
+
+        .sum-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 0.5px solid var(--border2);
+            font-size: 13px
+        }
+
+        .sum-row:last-of-type {
+            border-bottom: none
+        }
+
+        .divider {
+            height: 0.5px;
+            background: var(--border);
+            margin: 10px 0
+        }
+
+        /* SETTINGS */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-box {
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            width: 440px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .modal-close {
+            cursor: pointer;
+            color: var(--text4);
+            font-size: 18px;
+            line-height: 1;
+            padding: 0 4px
+        }
+
+        .modal-close:hover {
+            color: var(--text2)
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 0.5px solid var(--border)
+        }
+
+        /* ALERT */
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 12px
+        }
+
+        .alert-success {
+            background: #04342C;
+            border: 0.5px solid #0F6E56;
+            color: #5DCAA5
+        }
+
+        .alert-error {
+            background: #1a1010;
+            border: 0.5px solid #501313;
+            color: #F09595
+        }
+
+        .alert-warn {
+            background: #1a1200;
+            border: 0.5px solid #412402;
+            color: #FAC775
+        }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1D9E75;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity .3s;
+            pointer-events: none
+        }
+
+        #toast.show {
+            opacity: 1
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 12px
+        }
+
+        .label {
+            font-size: 12px;
+            color: var(--text4);
+            margin-bottom: 5px
+        }
+
+        .input {
+            width: 100%;
+            background: var(--bg);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text2);
+            font-size: 13px;
+            outline: none
+        }
+
+        .input:focus {
+            border-color: var(--accent)
+        }
+
+        .select {
+            width: 100%;
+            background: var(--bg2);
+            border: 0.5px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text2);
+            font-size: 13px;
+            outline: none
+        }
+
+        .select:focus {
+            border-color: var(--accent)
+        }
+
+        /* EMPTY / PAGE */
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--text4);
+            font-size: 13px
+        }
+
+        .page {
+            display: none
+        }
+
+        .page.active {
+            display: block
+        }
+
+        /* THEME TOGGLE BUTTON */
+        .theme-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 0.5px solid var(--border);
+            background: var(--bg2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: .15s;
+            user-select: none
+        }
+
+        .theme-btn:hover {
+            background: var(--bg4)
+        }
+
+        /* ── Searchable Select ── */
+        .ss-label {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── Trip Sales Chips ── */
+        .trip-sales-chip {
+            padding: 6px 14px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text4);
+            user-select: none;
+            transition: border-color .15s, color .15s, background .15s;
+        }
+
+        .trip-sales-chip:hover {
+            border-color: var(--primary);
+            color: var(--text2);
+        }
+
+        .trip-sales-chip.selected {
+            border-color: #1D9E75;
+            color: #5DCAA5;
+            background: #0a1a10;
+        }
+
+        /* ── Entitas search box ── */
+        .list-search-box {
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toast"></div>
+
+    <!-- ============================================================ MODALS ============================================================ -->
+
+    <!-- Modal: Catat Bayar -->
+    <div id="modal-bayar" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Catat pembayaran<span class="modal-close"
+                    onclick="closeModal('modal-bayar')">×</span></div>
+            <div id="modal-bayar-body"></div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-bayar')">Batal</button>
+                <button class="btn btn-success" onclick="submitBayar()">Simpan pembayaran</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Pembayaran Termin -->
+    <div id="modal-edit-bayar" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Edit Pembayaran Termin<span class="modal-close"
+                    onclick="closeModal('modal-edit-bayar')">×</span></div>
+            <div id="modal-edit-bayar-body"></div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-edit-bayar')">Batal</button>
+                <button class="btn" style="background:#2a1e00;border-color:#4a3000;color:#FAC775"
+                    onclick="submitEditBayar()">&#9998; Simpan perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Barang Masuk -->
+    <div id="modal-barang-masuk" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Catat barang masuk<span class="modal-close"
+                    onclick="closeModal('modal-barang-masuk')">×</span></div>
+            <div class="form-group">
+                <div class="label">Sumber nama barang</div>
+                <div style="display:flex;gap:8px;margin-bottom:8px">
+                    <button class="mode-btn active" id="bm-mode-existing" onclick="setBMMode('existing')">Barang
+                        existing</button>
+                    <button class="mode-btn" id="bm-mode-baru" onclick="setBMMode('baru')">Barang baru</button>
+                </div>
+                <input type="hidden" id="bm-nama-type" value="existing" />
+                <div id="bm-existing-wrap">
+                    <select class="select" id="bm-nama" onchange="prefillHargaBarang(this.value)"></select>
+                </div>
+                <div id="bm-baru-wrap" style="display:none">
+                    <input class="input" id="bm-nama-baru" placeholder="Nama barang baru..." />
+                    <div style="margin-top:8px">
+                        <div class="label">Kategori</div>
+                        <select class="select" id="bm-kategori">
+                            <option value="jual">Barang jual</option>
+                            <option value="sovenir">Sovenir</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Kondisi</div>
+                    <select class="select" id="bm-kondisi">
+                        <option value="good">Good</option>
+                        <option value="reject">Reject</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Jumlah</div>
+                    <input class="input" type="number" id="bm-jumlah" value="10" min="1" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Harga jual (Rp)</div>
+                    <input class="input" id="bm-harga" placeholder=""
+                        onblur="this.value = this.value ? fmtRpFull(parseRp(this.value)) : ''"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Tanggal masuk</div>
+                    <input class="input" type="date" id="bm-tanggal" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Supplier</div>
+                    <input class="input" id="bm-supplier" value="PT Sumber Makmur" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Catatan</div>
+                    <input class="input" id="bm-catatan" placeholder="Opsional..." />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-barang-masuk')">Batal</button>
+                <button class="btn btn-primary" onclick="submitBarangMasuk()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Barang -->
+    <div id="modal-edit-barang" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title"><span id="modal-edit-barang-title">Edit Barang</span><span class="modal-close"
+                    onclick="closeModal('modal-edit-barang')">×</span></div>
+            <input type="hidden" id="eb-id" />
+            <div class="form-group">
+                <div class="label">Nama barang</div>
+                <input class="input" id="eb-nama" />
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Stok saat ini</div>
+                    <input class="input" type="number" id="eb-stok" min="0" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Stok minimum</div>
+                    <input class="input" type="number" id="eb-min" min="0" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Harga jual (Rp)</div>
+                    <input class="input" id="eb-harga" placeholder="0"
+                        onblur="this.value = this.value ? fmtRpFull(parseRp(this.value)) : ''"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Kondisi</div>
+                    <select class="select" id="eb-kondisi">
+                        <option value="good">Good</option>
+                        <option value="reject">Reject</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-edit-barang')">Batal</button>
+                <button class="btn btn-primary" onclick="submitEditBarang()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Buat Bundle / Set -->
+    <div id="modal-buat-bundle" class="modal-overlay" style="display:none">
+        <div class="modal-box" style="width:520px">
+            <div class="modal-title">Buat Bundle / Set Barang<span class="modal-close"
+                    onclick="closeModal('modal-buat-bundle')">×</span></div>
+            <div class="form-group">
+                <div class="label">Nama bundle</div>
+                <input class="input" id="bdl-nama" placeholder="Contoh: Bundle Standard, Paket Hemat..." />
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Harga jual bundle (Rp)</div>
+                    <input class="input" id="bdl-harga" placeholder="0"
+                        onblur="this.value = this.value ? fmtRpFull(parseRp(this.value)) : ''"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Stok bundle tersedia</div>
+                    <input class="input" type="number" id="bdl-stok" value="0" min="0" readonly style="color:#5F5E5A"
+                        title="Dihitung otomatis dari stok komponen" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">Deskripsi / catatan</div>
+                <input class="input" id="bdl-desc" placeholder="Opsional..." />
+            </div>
+            <div class="section-head" style="margin-top:4px">Komponen barang dalam bundle</div>
+            <div style="font-size:11px;color:#5F5E5A;margin-bottom:8px">Tambahkan barang yang termasuk dalam bundle ini
+                beserta jumlahnya per unit bundle.</div>
+            <div id="bdl-komponen-rows"></div>
+            <button class="btn" style="width:100%;border-style:dashed;margin-top:6px;font-size:12px"
+                onclick="addBundleKomponenRow()">+ Tambah komponen</button>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-buat-bundle')">Batal</button>
+                <button class="btn btn-primary" onclick="submitBuatBundle()">Simpan Bundle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Bundle -->
+    <div id="modal-edit-bundle" class="modal-overlay" style="display:none">
+        <div class="modal-box" style="width:520px">
+            <div class="modal-title">Edit Bundle<span class="modal-close"
+                    onclick="closeModal('modal-edit-bundle')">×</span></div>
+            <input type="hidden" id="ebd-id" />
+            <div class="form-group">
+                <div class="label">Nama bundle</div>
+                <input class="input" id="ebd-nama" />
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Harga jual bundle (Rp)</div>
+                    <input class="input" id="ebd-harga" placeholder="0"
+                        onblur="this.value = this.value ? fmtRpFull(parseRp(this.value)) : ''"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Aktif</div>
+                    <select class="select" id="ebd-aktif">
+                        <option value="1">Ya</option>
+                        <option value="0">Tidak</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Stok bundle (preview)</div>
+                    <input class="input" type="number" id="ebd-stok" value="0" readonly style="color:#5F5E5A" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Deskripsi / catatan</div>
+                    <input class="input" id="ebd-desc" placeholder="Opsional..." />
+                </div>
+            </div>
+            <div class="section-head" style="margin-top:4px">Komponen barang</div>
+            <div id="ebd-komponen-rows"></div>
+            <button class="btn" style="width:100%;border-style:dashed;margin-top:6px;font-size:12px"
+                onclick="addEditBundleKomponenRow()">+ Tambah komponen</button>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-edit-bundle')">Batal</button>
+                <button class="btn btn-primary" onclick="submitEditBundle()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Catat Retur -->
+    <div id="modal-retur" class="modal-overlay" style="display:none">
+        <div class="modal-box" style="width:520px">
+            <div class="modal-title">Proses retur barang<span class="modal-close"
+                    onclick="closeModal('modal-retur')">×</span></div>
+            <div class="alert alert-warn">Retur mengurangi bundle & tagihan PO secara proporsional, membatalkan cicilan
+                belum bayar, dan mengembalikan stok per kondisi unit.</div>
+            <div class="form-group">
+                <div class="label">PO terkait</div>
+                <select class="select" id="retur-po" style="width:100%" onchange="onReturPOChange()"></select>
+            </div>
+            <div id="retur-po-info"
+                style="display:none;background:var(--bg5);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text4);margin-bottom:12px">
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Jumlah bundle diretur</div>
+                    <input class="input" type="number" id="retur-jumlah" value="1" min="1" oninput="onReturCalc()" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Alasan retur</div>
+                    <input class="input" id="retur-alasan" placeholder="Contoh: Barang rusak" />
+                </div>
+            </div>
+            <div class="section-head" style="margin-top:10px">Kondisi per unit barang yang dikembalikan</div>
+            <div id="retur-unit-rows" style="font-size:12px;color:var(--text4);padding:6px 0">Pilih PO terlebih dahulu.
+            </div>
+            <div id="retur-preview"
+                style="display:none;background:var(--bg5);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px">
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-retur')">Batal</button>
+                <button class="btn btn-danger" onclick="submitRetur()">Proses retur</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Catat Loss (Konsumen Kabur) -->
+    <div id="modal-loss" class="modal-overlay" style="display:none">
+        <div class="modal-box" style="width:540px">
+            <div class="modal-title">Catat Kasus Loss — Konsumen Kabur<span class="modal-close"
+                    onclick="closeModal('modal-loss')">×</span></div>
+            <div class="alert alert-warn" style="margin-bottom:12px">Mencatat kehilangan barang: stok dikembalikan (unit
+                recover), bundle PO dikurangi, komisi Sales disesuaikan, dan beban ganti rugi otomatis dicatat.</div>
+
+            <!-- Step 1: PO -->
+            <div class="form-group">
+                <div class="label">PO terkait</div>
+                <select class="select" id="loss-po" style="width:100%" onchange="onLossPOChange()"></select>
+            </div>
+            <div id="loss-po-info"
+                style="background:var(--bg5);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text4);margin-bottom:12px;display:none">
+            </div>
+
+            <!-- Step 2: Barang hilang (dari inventory komponen bundle) -->
+            <div class="section-head" style="margin-top:4px">Barang yang Hilang</div>
+            <div id="loss-items-container">
+                <div style="font-size:11px;color:var(--text4);padding:8px 0">Pilih PO terlebih dahulu untuk menampilkan
+                    komponen barang.</div>
+            </div>
+            <div id="loss-total-beban"
+                style="display:none;background:var(--bg5);border-radius:8px;padding:10px 12px;font-size:12px;margin-top:8px">
+                <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--text4)">Total nilai barang hilang (beban Sales)</span>
+                    <span id="loss-beban-val" style="color:#F09595;font-weight:600">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- Step 3: Keterangan -->
+            <div class="form-group" style="margin-top:12px">
+                <div class="label">Keterangan (nama konsumen yang kabur, dll)</div>
+                <input class="input" id="loss-keterangan" placeholder="Contoh: Budi RT 05 blok C, telp tidak aktif" />
+            </div>
+
+            <!-- Preview dampak -->
+            <div id="loss-preview"
+                style="background:var(--accent-bg);border:0.5px solid var(--accent-border);border-radius:8px;padding:12px;font-size:12px;margin-bottom:4px;display:none">
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-loss')">Batal</button>
+                <button class="btn btn-danger" onclick="submitLoss()">Proses Loss</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Trip Harian -->
+    <div id="modal-trip" class="modal-overlay" style="display:none">
+        <div class="modal-box" style="width:560px">
+            <div class="modal-title">Catat Trip Harian<span class="modal-close"
+                    onclick="closeModal('modal-trip')">&#215;</span></div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Tanggal</div>
+                    <input class="input" type="date" id="trip-tanggal" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Supir</div>
+                    <select class="select" id="trip-supir"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">Sales yang ikut <span style="color:var(--text4);font-weight:400">(klik untuk
+                        pilih/hapus)</span></div>
+                <div id="trip-sales-checks" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
+                <div id="trip-sales-selected" style="margin-top:6px;font-size:11px;color:var(--text4)">Belum ada sales
+                    dipilih</div>
+            </div>
+            <div class="section-head" style="margin-top:4px">Biaya Operasional</div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Sewa mobil (Rp)</div>
+                    <input class="input" id="trip-sewa" type="text" placeholder="Rp 0"
+                        onblur="this.value=this.value?fmtRpFull(parseRp(this.value)):'';onTripCalc()"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" oninput="onTripCalc()" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Bensin (Rp)</div>
+                    <input class="input" id="trip-bensin" type="text" placeholder="Rp 0"
+                        onblur="this.value=this.value?fmtRpFull(parseRp(this.value)):'';onTripCalc()"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" oninput="onTripCalc()" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Upah supir (Rp)</div>
+                    <input class="input" id="trip-upah-supir" type="text" placeholder="Rp 0"
+                        onblur="this.value=this.value?fmtRpFull(parseRp(this.value)):'';onTripCalc()"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" oninput="onTripCalc()" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Lain-lain (Rp)</div>
+                    <input class="input" id="trip-lain" type="text" placeholder="Rp 0"
+                        onblur="this.value=this.value?fmtRpFull(parseRp(this.value)):'';onTripCalc()"
+                        onfocus="var v=parseRp(this.value);this.value=v||''" oninput="onTripCalc()" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Urutan trip hari ini</div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <input class="input" type="number" id="trip-jam" value="1" min="1" max="20"
+                            style="width:70px;text-align:center" />
+                        <span style="font-size:12px;color:var(--text4)">trip ke-</span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Tujuan / rute</div>
+                    <input class="input" id="trip-tujuan" placeholder="Contoh: Bekasi - Tambun" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label">Keterangan tambahan</div>
+                <input class="input" id="trip-ket" placeholder="Opsional..." />
+            </div>
+            <!-- Preview split -->
+            <div id="trip-preview"
+                style="background:var(--bg5);border-radius:8px;padding:12px;font-size:12px;display:none">
+                <div
+                    style="font-size:11px;color:var(--text4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">
+                    Preview Pembagian Biaya</div>
+                <div id="trip-preview-rows"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-trip')">Batal</button>
+                <button class="btn btn-primary" onclick="submitTrip()">Simpan Trip</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Tambah Konsumen -->
+    <div id="modal-konsumen" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Tambah Konsumen baru<span class="modal-close"
+                    onclick="closeModal('modal-konsumen')">×</span></div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Nama lengkap</div><input class="input" id="k-nama" placeholder="Nama konsumen" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">No. telepon</div><input class="input" id="k-telp"
+                        placeholder="+62 8xx-xxxx-xxxx" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Kota</div><input class="input" id="k-kota" placeholder="Jakarta" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Alamat</div><input class="input" id="k-alamat" placeholder="Jl. ..." />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-konsumen')">Batal</button>
+                <button class="btn btn-primary" onclick="submitKonsumen()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Konsumen -->
+    <div id="modal-edit-konsumen" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Edit Konsumen<span class="modal-close"
+                    onclick="closeModal('modal-edit-konsumen')">×</span></div>
+            <input type="hidden" id="ke-id" />
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Nama lengkap</div><input class="input" id="ke-nama" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">No. telepon</div><input class="input" id="ke-telp" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Kota</div><input class="input" id="ke-kota" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Alamat</div><input class="input" id="ke-alamat" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-edit-konsumen')">Batal</button>
+                <button class="btn btn-primary" onclick="submitEditKonsumen()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Tambah Entitas -->
+    <div id="modal-entitas" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Tambah entitas baru<span class="modal-close"
+                    onclick="closeModal('modal-entitas')">×</span></div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Nama</div><input class="input" id="e-nama" placeholder="Nama entitas" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">No. ID / NIK (opsional)</div><input class="input" id="e-nik"
+                        placeholder="Nomor ID internal" maxlength="16" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Peran</div>
+                    <select class="select" id="e-peran">
+                        <option>Sales</option>
+                        <option>Nego</option>
+                        <option>Collector</option>
+                        <option>Kepala Cabang</option>
+                        <option>Supir</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">No. telepon</div><input class="input" id="e-telp"
+                        placeholder="+62 8xx-xxxx-xxxx" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-entitas')">Batal</button>
+                <button class="btn btn-primary" onclick="submitEntitas()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Komisi Entitas -->
+    <div id="modal-edit-komisi" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Edit Komisi<span class="modal-close"
+                    onclick="closeModal('modal-edit-komisi')">×</span></div>
+            <input type="hidden" id="ek-id" />
+            <div class="form-group">
+                <div class="label">Nama entitas</div>
+                <input class="input" id="ek-nama" readonly />
+            </div>
+            <div class="form-group">
+                <div class="label">Peran: <span id="ek-peran" style="color:#AFA9EC"></span></div>
+            </div>
+            <div class="form-group">
+                <div class="label">Rate komisi (Rp)</div>
+                <input class="input" type="number" id="ek-rate" min="0" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-edit-komisi')">Batal</button>
+                <button class="btn btn-primary" onclick="submitEditKomisi()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Pengeluaran Entitas -->
+    <div id="modal-pengeluaran" class="modal-overlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-title">Tambah pengeluaran<span class="modal-close"
+                    onclick="closeModal('modal-pengeluaran')">×</span></div>
+            <div class="alert alert-warn" style="font-size:12px">Pengeluaran akan langsung dipotong dari komisi entitas.
+            </div>
+            <div class="form-group">
+                <div class="label">Jenis pengeluaran</div>
+                <select class="select" id="peng-jenis">
+                    <option value="Kasbon">Kasbon</option>
+                    <option value="Uang supir">Uang supir</option>
+                    <option value="Bensin">Bensin</option>
+                    <option value="Sewa mobil">Sewa mobil</option>
+                    <option value="Uang jalan">Uang jalan</option>
+                    <option value="Sovenir">Souvenir</option>
+                    <option value="Lain-lain">Lain-lain</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="margin:0">
+                    <div class="label">Jumlah (Rp)</div>
+                    <input class="input" id="peng-jumlah" type="text" placeholder="500.000"
+                        oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.')" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <div class="label">Keterangan</div>
+                    <input class="input" id="peng-ket" placeholder="Opsional..." />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-pengeluaran')">Batal</button>
+                <button class="btn btn-danger" onclick="submitPengeluaran()">Potong dari komisi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Konfirmasi Hapus -->
+    <div id="modal-konfirmasi" class="modal-overlay" style="display:none">
+        <div class="modal-box" style="max-width:400px">
+            <div class="modal-title">
+                <span id="konfirm-judul">Konfirmasi</span>
+                <span class="modal-close" onclick="closeModal('modal-konfirmasi')">×</span>
+            </div>
+            <div style="padding:4px 0 16px;color:#b0ae a6;font-size:13px;line-height:1.6" id="konfirm-pesan"></div>
+            <div
+                style="background:#1a1210;border:0.5px solid #3a1c1c;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#F09595">
+                ⚠ Aksi ini tidak dapat dibatalkan.
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-konfirmasi')">Batal</button>
+                <button class="btn btn-danger" onclick="eksekusiHapus()">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ APP ============================================================ -->
+    <div class="app">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-img-wrap" onclick="document.getElementById('sidebar-logo-input').click()"
+                    title="Klik untuk upload logo">
+                    <img id="sidebar-logo-img" src="" alt="" style="display:none" />
+                    <div class="logo-img-placeholder" id="sidebar-logo-placeholder">IGP</div>
+                    <input type="file" id="sidebar-logo-input" accept="image/*" style="display:none"
+                        onchange="uploadLogoSidebar(this)" />
+                </div>
+                <div>
+                    <div class="logo-text" id="sidebar-company-name">INTERGAS PERDANA</div>
+                    <div class="logo-sub">Distribusi &amp; Keuangan</div>
+                </div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-label">Menu</div>
+                <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+                        <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" />
+                        <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" />
+                        <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" />
+                    </svg>
+                    Dashboard
+                </div>
+                <div class="nav-item" data-page="inventory" onclick="navigate('inventory')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <rect x="1" y="3" width="14" height="2" rx="1" fill="currentColor" />
+                        <rect x="1" y="7" width="14" height="2" rx="1" fill="currentColor" />
+                        <rect x="1" y="11" width="8" height="2" rx="1" fill="currentColor" />
+                    </svg>
+                    Inventory
+                </div>
+                <div class="nav-item" data-page="konsumen" onclick="navigate('konsumen')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2" />
+                        <path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.2"
+                            stroke-linecap="round" />
+                    </svg>
+                    Konsumen
+                </div>
+                <div class="nav-item" data-page="transaksi" onclick="navigate('transaksi')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" />
+                        <path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    </svg>
+                    Transaksi (PO)
+                </div>
+                <div class="nav-item" data-page="entitas" onclick="navigate('entitas')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+                        <circle cx="11" cy="11" r="2.5" stroke="currentColor" stroke-width="1.2" />
+                        <path d="M7.5 5h2a2 2 0 012 2v2" stroke="currentColor" stroke-width="1.2"
+                            stroke-linecap="round" />
+                    </svg>
+                    Entitas
+                </div>
+                <div class="nav-item" data-page="trip" onclick="navigate('trip')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <circle cx="3.5" cy="11.5" r="1.5" stroke="currentColor" stroke-width="1.2" />
+                        <circle cx="12.5" cy="11.5" r="1.5" stroke="currentColor" stroke-width="1.2" />
+                        <path d="M1 11.5H2M5 11.5h5M14 11.5h1M2 11.5V7l3-4h5l2 3h1.5a1 1 0 011 1v3.5"
+                            stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Trip Harian
+                </div>
+                <div class="nav-item" data-page="laporan" onclick="navigate('laporan')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 12V5l6-3 6 3v7l-6 3-6-3z" stroke="currentColor" stroke-width="1.2" />
+                    </svg>
+                    Laporan
+                </div>
+            </div>
+            <div class="nav-bottom">
+                <div class="nav-item" data-page="settings" onclick="navigate('settings')">
+                    <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2" />
+                        <path
+                            d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"
+                            stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                    </svg>
+                    Settings
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <span class="topbar-title" id="page-title">Dashboard</span>
+                    <span id="page-breadcrumb" style="color:#5F5E5A;font-size:13px"></span>
+                </div>
+                <div class="topbar-right">
+                    <div id="topbar-actions" style="display:flex;gap:8px"></div>
+                    <div class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Ganti tema">🌙</div>
+
+                </div>
+            </div>
+
+            <div id="pages-container" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+
+                <!-- ===== DASHBOARD ===== -->
+                <div id="page-dashboard" class="page active" style="flex:1;overflow-y:auto;padding:20px 24px">
+                    <div id="dashboard-container">
+                        <div style="color:#5F5E5A;font-size:13px;padding:20px 0">Memuat dashboard...</div>
+                    </div>
+                </div>
+
+                <!-- ===== INVENTORY ===== -->
+                <div id="page-inventory" class="page" style="flex:1;overflow-y:auto;padding:20px 24px">
+                    <div class="stat-grid-4">
+                        <div class="stat-card" id="inv-stat-good">
+                            <div class="stat-label">Total stok good</div>
+                            <div class="stat-val">—</div>
+                        </div>
+                        <div class="stat-card" id="inv-stat-reject">
+                            <div class="stat-label">Total stok reject</div>
+                            <div class="stat-val" style="color:#F09595">—</div>
+                        </div>
+                        <div class="stat-card" id="inv-stat-masuk">
+                            <div class="stat-label">Masuk (total)</div>
+                            <div class="stat-val">—</div>
+                        </div>
+                        <div class="stat-card" id="inv-stat-retur">
+                            <div class="stat-label">Retur (total)</div>
+                            <div class="stat-val" style="color:#FAC775">—</div>
+                        </div>
+                    </div>
+                    <div class="tabs" id="inv-tabs">
+                        <div class="tab active" data-inv-tab="semua">Semua barang</div>
+                        <div class="tab" data-inv-tab="jual">Barang jual</div>
+                        <div class="tab" data-inv-tab="sovenir">Sovenir</div>
+                        <div class="tab" data-inv-tab="bundle">Bundle / Set</div>
+                        <div class="tab" data-inv-tab="riwayat">Riwayat masuk</div>
+                        <div class="tab" data-inv-tab="retur">Retur</div>
+                    </div>
+                    <div class="filter-bar" id="inv-filter-bar">
+                        <input class="filter-input" id="inv-search" placeholder="Cari nama barang..."
+                            oninput="renderInventory()" />
+                        <select class="filter-select" id="inv-kondisi" onchange="renderInventory()">
+                            <option value="">Semua kondisi</option>
+                            <option value="good">Good</option>
+                            <option value="reject">Reject</option>
+                        </select>
+                        <select class="filter-select" id="inv-kategori" onchange="renderInventory()">
+                            <option value="">Semua kategori</option>
+                            <option value="jual">Barang jual</option>
+                            <option value="sovenir">Sovenir</option>
+                        </select>
+                    </div>
+                    <div class="tbl-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nama barang</th>
+                                    <th>Kategori</th>
+                                    <th>Kondisi</th>
+                                    <th>Stok</th>
+                                    <th>Min. stok</th>
+                                    <th>Harga jual</th>
+                                    <th>Terakhir masuk</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inv-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div id="inv-bundle-section" style="display:none">
+                        <div class="section-head" style="display:flex;justify-content:space-between;align-items:center">
+                            <span>Bundle / Set Barang</span>
+                            <button class="btn btn-primary" style="padding:4px 12px;font-size:12px"
+                                onclick="openModal('modal-buat-bundle')">+ Buat Bundle</button>
+                        </div>
+                        <div id="inv-bundle-list"></div>
+                    </div>
+                    <div id="inv-riwayat-section" style="display:none">
+                        <div class="section-head">Riwayat masuk dari supplier</div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Barang</th>
+                                        <th>Kondisi</th>
+                                        <th>Jumlah</th>
+                                        <th>Supplier</th>
+                                        <th>Catatan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inv-riwayat-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="inv-retur-section" style="display:none">
+                        <div class="section-head">Retur dari konsumen</div>
+                        <div class="tbl-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>PO</th>
+                                        <th>Konsumen</th>
+                                        <th>Kondisi</th>
+                                        <th>Jumlah</th>
+                                        <th>Alasan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inv-retur-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== KONSUMEN ===== -->
+                <div id="page-konsumen" class="page" style="flex:1;overflow:hidden">
+                    <div class="split-layout">
+                        <div class="list-panel">
+                            <div class="list-panel-header">
+                                <span style="font-size:14px;font-weight:500" id="konsumen-count">Konsumen</span>
+                                <button class="btn btn-primary" style="padding:5px 12px;font-size:12px"
+                                    onclick="openModal('modal-konsumen')">+ Tambah</button>
+                            </div>
+                            <div style="padding:10px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0">
+                                <input class="filter-input" style="width:100%" id="konsumen-search"
+                                    placeholder="Cari nama / telepon..." oninput="renderKonsumenList()" />
+                            </div>
+                            <div class="list-scroll" id="konsumen-list"></div>
+                        </div>
+                        <div class="detail-panel">
+                            <div id="konsumen-detail-header"
+                                style="padding:12px 20px;border-bottom:0.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+                            </div>
+                            <div class="detail-scroll" id="konsumen-detail-body"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== TRANSAKSI ===== -->
+                <div id="page-transaksi" class="page" style="flex:1;overflow:hidden">
+                    <div class="split-layout">
+                        <div class="list-panel">
+                            <div class="list-panel-header">
+                                <span style="font-size:14px;font-weight:500" id="po-count">PO</span>
+                                <button class="btn btn-primary" style="padding:5px 12px;font-size:12px"
+                                    onclick="navigate('buat-po')">+ Buat PO</button>
+                            </div>
+                            <div style="padding:10px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0">
+                                <input class="filter-input" style="width:100%;margin-bottom:8px" id="po-search"
+                                    placeholder="Cari PO / konsumen..." oninput="renderPOList()" />
+                                <select class="filter-select" style="width:100%" id="po-status"
+                                    onchange="renderPOList()">
+                                    <option value="">Semua status</option>
+                                    <option value="telat">Telat</option>
+                                    <option value="berjalan">Berjalan</option>
+                                    <option value="lunas">Lunas</option>
+                                </select>
+                            </div>
+                            <div class="list-scroll" id="po-list"></div>
+                        </div>
+                        <div class="detail-panel">
+                            <div id="po-detail-header"
+                                style="padding:12px 20px;border-bottom:0.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+                            </div>
+                            <div class="detail-scroll" id="po-detail-body"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== BUAT PO ===== -->
+                <div id="page-buat-po" class="page" style="flex:1;overflow-y:auto;padding:20px 24px">
+                    <div class="grid2-aside">
+                        <div>
+                            <div class="card">
+                                <div class="card-title">Informasi konsumen</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Konsumen</div>
+                                        <select class="select" id="po-konsumen" onchange="updatePOSummary()"></select>
+                                    </div>
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Tanggal PO</div>
+                                        <input class="input" id="po-tanggal" value="12 April 2026" />
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top:10px">
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Sesi kunjungan (Jam ke-)</div>
+                                        <input class="input" type="number" id="po-sesi" value="1" min="1" max="20"
+                                            placeholder="1" style="width:100%" />
+                                    </div>
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Lokasi / Nama tempat</div>
+                                        <input class="input" id="po-lokasi" placeholder="Nama RT/Perumahan/Lokasi" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">Bundle produk</div>
+                                <div
+                                    style="display:flex;gap:6px;margin-bottom:8px;font-size:11px;color:#5F5E5A;padding:0 4px">
+                                    <span style="flex:1">Produk</span><span style="width:130px">Harga/bundle</span><span
+                                        style="width:70px;text-align:center">Qty</span><span style="width:28px"></span>
+                                </div>
+                                <div id="bundle-rows"></div>
+                                <button class="btn" style="width:100%;border-style:dashed;margin-top:2px"
+                                    id="btn-tambah-bundle" onclick="addBundleRow()">+ Tambah bundle lain</button>
+                            </div>
+                            <div class="card" style="border-color:#2a1e00">
+                                <div class="card-title" style="color:#FAC775">Souvenir (biaya ditanggung Sales)</div>
+                                <div style="font-size:11px;color:var(--text4);margin-bottom:8px">Souvenir tidak masuk
+                                    tagihan konsumen. Biaya dipotong dari komisi Sales.</div>
+                                <div
+                                    style="display:flex;gap:6px;margin-bottom:6px;font-size:11px;color:#5F5E5A;padding:0 4px">
+                                    <span style="flex:1">Nama souvenir</span><span
+                                        style="width:110px">Harga/unit</span><span
+                                        style="width:70px;text-align:center">Qty</span><span style="width:28px"></span>
+                                </div>
+                                <div id="sovenir-rows"></div>
+                                <button class="btn"
+                                    style="width:100%;border-style:dashed;margin-top:2px;border-color:#3a2d00;color:#FAC775"
+                                    onclick="addSovenirRow()">+ Tambah souvenir</button>
+                                <div id="sovenir-total-info"
+                                    style="font-size:12px;color:#FAC775;margin-top:6px;text-align:right;display:none">
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">Penugasan entitas</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Sales</div><select class="select" id="po-sales"
+                                            onchange="updatePOSummary()"></select>
+                                    </div>
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Nego</div><select class="select" id="po-nego"
+                                            onchange="updatePOSummary()"></select>
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top:10px">
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Kepala Cabang</div>
+                                        <select class="select" id="po-kc-select" onchange="updatePOSummary()"
+                                            style="display:none"></select>
+                                        <div class="input"
+                                            style="background:var(--bg5);color:var(--text4);font-size:12px;padding:8px 10px"
+                                            id="po-kc-display">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">Pengaturan cicilan</div>
+                                <div class="form-row">
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Jumlah cicilan</div><input class="input" type="number"
+                                            id="po-n-cicilan" value="7" min="1" max="24" oninput="recalcCicilan()" />
+                                    </div>
+                                    <div class="form-group" style="margin:0">
+                                        <div class="label">Mulai cicilan</div><input class="input" id="po-mulai-cicilan"
+                                            value="19 April 2026" oninput="recalcCicilan()" />
+                                    </div>
+                                </div>
+                                <div class="label" style="margin:12px 0 8px">Mode cicilan</div>
+                                <div class="cicilan-mode-btns">
+                                    <div class="mode-btn" id="mode-rata" onclick="setCicilanMode('rata')">Bagi rata
+                                    </div>
+                                    <div class="mode-btn active" id="mode-preset" onclick="setCicilanMode('preset')">
+                                        Preset (%)</div>
+                                    <div class="mode-btn" id="mode-manual" onclick="setCicilanMode('manual')">Manual
+                                    </div>
+                                </div>
+                                <div id="preset-info"
+                                    style="display:flex;justify-content:space-between;margin-bottom:8px">
+                                    <span style="font-size:11px;color:#5F5E5A">Template: Pola A
+                                        (40-20-15-10-5-5-5)</span>
+                                    <span style="font-size:11px;color:#AFA9EC;cursor:pointer"
+                                        onclick="cyclePreset()">Ganti preset</span>
+                                </div>
+                                <div id="cicilan-rows-container"></div>
+                                <div
+                                    style="display:flex;justify-content:space-between;padding:10px 10px 0;font-size:12px">
+                                    <span style="color:#5F5E5A" id="cicilan-total-label">Total persentase</span>
+                                    <span id="cicilan-total-val" style="font-weight:500">100% ✓</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="summary-sticky" id="po-summary"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ENTITAS ===== -->
+                <div id="page-entitas" class="page" style="flex:1;overflow:hidden">
+                    <div class="split-layout">
+                        <div class="list-panel">
+                            <div class="list-panel-header">
+                                <span style="font-size:14px;font-weight:500">Entitas</span>
+                                <button class="btn btn-primary" style="padding:5px 12px;font-size:12px"
+                                    onclick="openModal('modal-entitas')">+ Tambah</button>
+                            </div>
+                            <div style="display:flex;padding:10px 12px;gap:4px;border-bottom:0.5px solid var(--border);flex-shrink:0"
+                                id="entitas-tabs">
+                                <div class="tab active"
+                                    style="padding:5px 10px;font-size:12px;border-radius:6px;border:none;border-bottom:none"
+                                    data-ent-tab="Sales" onclick="setEntitasTab('Sales')">Sales</div>
+                                <div class="tab"
+                                    style="padding:5px 10px;font-size:12px;border-radius:6px;border:none;border-bottom:none"
+                                    data-ent-tab="Nego" onclick="setEntitasTab('Nego')">Nego</div>
+                                <div class="tab"
+                                    style="padding:5px 10px;font-size:12px;border-radius:6px;border:none;border-bottom:none"
+                                    data-ent-tab="Collector" onclick="setEntitasTab('Collector')">Collector</div>
+                                <div class="tab"
+                                    style="padding:5px 10px;font-size:12px;border-radius:6px;border:none;border-bottom:none"
+                                    data-ent-tab="Kepala Cabang" onclick="setEntitasTab('Kepala Cabang')">KC</div>
+                                <div class="tab"
+                                    style="padding:5px 10px;font-size:12px;border-radius:6px;border:none;border-bottom:none"
+                                    data-ent-tab="Supir" onclick="setEntitasTab('Supir')">Supir</div>
+                            </div>
+                            <div class="list-scroll" id="entitas-list">
+                                <input id="entitas-search" class="input" placeholder="🔍 Cari entitas..."
+                                    style="width:calc(100% - 24px);margin:10px 12px 4px;font-size:12px"
+                                    oninput="renderEntitasList()" />
+                            </div>
+                        </div>
+                        <div class="detail-panel">
+                            <div id="entitas-detail-header"
+                                style="padding:12px 20px;border-bottom:0.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+                            </div>
+                            <div class="detail-scroll" id="entitas-detail-body"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== LAPORAN ===== -->
+                <div id="page-trip" class="page" style="flex:1;overflow-y:auto;padding:20px 24px">
+                    <div id="trip-stats" class="stat-grid-4" style="margin-bottom:16px"></div>
+                    <div id="trip-list"></div>
+                </div>
+
+                <div id="page-laporan" class="page" style="flex:1;overflow-y:auto;padding:20px 24px">
+                    <div class="filter-bar" style="margin-bottom:0">
+                        <select class="filter-select" id="laporan-tahun" onchange="onLaporanFilterChange()">
+                            <option value="semua">Semua tahun</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <select class="filter-select" id="laporan-bulan" onchange="onLaporanFilterChange()">
+                            <option value="semua">Semua bulan</option>
+                            <option value="Jan">Januari</option>
+                            <option value="Feb">Februari</option>
+                            <option value="Mar">Maret</option>
+                            <option value="Apr">April</option>
+                            <option value="Mei">Mei</option>
+                            <option value="Jun">Juni</option>
+                            <option value="Jul">Juli</option>
+                            <option value="Agu">Agustus</option>
+                            <option value="Sep">September</option>
+                            <option value="Okt">Oktober</option>
+                            <option value="Nov">November</option>
+                            <option value="Des">Desember</option>
+                        </select>
+                        <button class="btn btn-success" style="margin-left:auto;border-color:#1a6e40"
+                            onclick="exportExcelDispatch()" id="btn-export-entitas-excel"
+                            title="Export ke Excel">&#x1F4CA; Export Excel</button>
+                        <button class="btn" id="btn-export-json" onclick="exportData('json')">Export JSON</button>
+                        <button class="btn btn-primary" id="btn-export-pdf" onclick="exportPDF()"
+                            style="display:none">&#x1F4C4; Export
+                            PDF</button>
+                    </div>
+                    <div class="tabs" style="margin-top:14px" id="laporan-tabs">
+                        <div class="tab active" data-laporan-tab="global" onclick="setLaporanTab('global')">🌐 Laporan
+                            Global</div>
+                        <div class="tab" data-laporan-tab="barang" onclick="setLaporanTab('barang')">Barang</div>
+                        <div class="tab" data-laporan-tab="penjualan" onclick="setLaporanTab('penjualan')">Penjualan
+                        </div>
+                        <div class="tab" data-laporan-tab="entitas" onclick="setLaporanTab('entitas')">Per Entitas</div>
+                        <div class="tab" data-laporan-tab="konsumen" onclick="setLaporanTab('konsumen')">Konsumen</div>
+                        <div class="tab" data-laporan-tab="tahunan" onclick="setLaporanTab('tahunan')">📊 Tahunan</div>
+                    </div>
+                    <div id="laporan-content"></div>
+                </div>
+
+                <!-- ===== SETTINGS ===== -->
+                <div id="page-settings" class="page" style="flex:1;overflow-y:auto;padding:20px 24px">
+                    <div class="section-head" style="margin-bottom:16px">Konfigurasi sistem</div>
+                    <div id="settings-container"></div>
+                </div>
+
+            </div><!-- pages-container -->
+        </div><!-- main -->
+    </div><!-- app -->
+
+    <!-- Load scripts in order -->
+    <script src="data.js"></script>
+    <script src="ui.js"></script>
+    <script src="features.js"></script>
+    <script>
+        // ---- MODAL: overlay click to close ----
+        document.querySelectorAll('.modal-overlay').forEach(m => {
+            m.addEventListener('click', e => { if (e.target === m) m.style.display = 'none'; });
+        });
+
+        // ---- INVENTORY TABS ----
+        document.getElementById('inv-tabs').addEventListener('click', e => {
+            const tab = e.target.closest('[data-inv-tab]');
+            if (!tab) return;
+            document.querySelectorAll('[data-inv-tab]').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderInventory();
+        });
+
+        // ---- BARANG MASUK MODE ----
+        function setBMMode(mode) {
+            document.getElementById('bm-nama-type').value = mode;
+            document.getElementById('bm-existing-wrap').style.display = mode === 'existing' ? 'block' : 'none';
+            document.getElementById('bm-baru-wrap').style.display = mode === 'baru' ? 'block' : 'none';
+            document.getElementById('bm-mode-existing').classList.toggle('active', mode === 'existing');
+            document.getElementById('bm-mode-baru').classList.toggle('active', mode === 'baru');
+        }
+
+        // ---- INIT RETUR PO OPTIONS ----
+        function initReturOptions() {
+            const sel = document.getElementById('retur-po');
+            if (!sel) return;
+            const activePO = (DB.poList || []).filter(p => p.status !== 'retur');
+            sel.innerHTML = activePO.map(p => `<option value="${p.id}">${p.id} – ${p.konsumen} (${p.bundle} bundle)</option>`).join('');
+            // Trigger change to populate unit rows
+            if (typeof onReturPOChange === 'function') onReturPOChange();
+        }
+
+        // ---- INIT LOSS PO OPTIONS ----
+        function initLossOptions() {
+            const sel = document.getElementById('loss-po');
+            if (!sel) return;
+            const activePO = (DB.poList || []).filter(p => p.status !== 'lunas' && p.status !== 'retur');
+            sel.innerHTML = activePO.map(p => `<option value="${p.id}">${p.id} – ${p.konsumen} (${p.bundle} bundle)</option>`).join('');
+        }
+
+        // patch openModal to refresh retur options
+        const _origOpenModal = openModal;
+        window.openModal = function (id) {
+            if (id === 'modal-retur') initReturOptions();
+            if (id === 'modal-barang-masuk') refreshBarangOptions();
+            if (id === 'modal-loss') initLossOptions();
+            _origOpenModal(id);
+        };
+
+        // ---- BACKUP BUTTON di settings ----
+        // Ditambah otomatis ke topbar saat di halaman settings
+        const _origNavigate = navigate;
+        window.navigate = function (page) {
+            _origNavigate(page);
+            if (page === 'settings') {
+                const actions = document.getElementById('topbar-actions');
+                if (actions && !document.getElementById('btn-backup')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'btn-backup';
+                    btn.className = 'btn';
+                    btn.textContent = '💾 Backup sekarang';
+                    btn.onclick = backupDB;
+                    actions.prepend(btn);
+                }
+                if (actions && !document.getElementById('btn-reset-data')) {
+                    const btnReset = document.createElement('button');
+                    btnReset.id = 'btn-reset-data';
+                    btnReset.className = 'btn btn-danger';
+                    btnReset.textContent = '🗑️ Reset Data';
+                    btnReset.style.cssText = 'background:#7f1d1d;color:#fca5a5;border-color:#991b1b';
+                    btnReset.onclick = resetSemuaData;
+                    actions.prepend(btnReset);
+                }
+            }
+        };
+
+        // ---- THEME TOGGLE ----
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light');
+            document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+            localStorage.setItem('igp_theme', isLight ? 'light' : 'dark');
+        }
+
+        // Apply saved theme on load
+        if (localStorage.getItem('igp_theme') === 'light') {
+            document.body.classList.add('light');
+            document.getElementById('theme-btn').textContent = '☀️';
+        }
+
+        // ---- INIT DATE ----
+        const todayVal = new Date().toISOString().split('T')[0];
+        const bmDate = document.getElementById('bm-tanggal');
+        if (bmDate) bmDate.value = todayVal;
+
+        // ─────────────────────────────────────────────────────
+        // LOADING SCREEN — tunggu DB dari server
+        // ─────────────────────────────────────────────────────
+        (async () => {
+            // Apply theme sebelum overlay dibuat — cegah flash
+            if (localStorage.getItem('igp_theme') === 'light') {
+                document.body.classList.add('light');
+                const btn = document.getElementById('theme-btn');
+                if (btn) btn.textContent = '☀️';
+            }
+
+            // Tampilkan loading overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'app-loading';
+            overlay.style.cssText = `
+                position:fixed;inset:0;background:var(--bg);z-index:9999;
+                display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+            `;
+            overlay.innerHTML = `
+                <div style="font-size:22px;font-weight:600;color:var(--text);letter-spacing:.5px">
+                    <span id="welcome-company-name">INTERGAS PERDANA</span>
+                </div>
+                <div style="font-size:11px;color:var(--text4);letter-spacing:1px;text-transform:uppercase;margin-top:-4px">IGP · Sistem Distribusi</div>
+                <div style="font-size:13px;color:var(--text4);margin-top:8px">Memuat data...</div>
+                <div style="width:160px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+                    <div id="load-bar" style="height:100%;width:0%;background:var(--accent);border-radius:2px;transition:width .4s"></div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // Animasi progress bar
+            let pct = 10;
+            const tick = setInterval(() => {
+                pct = Math.min(pct + 15, 85);
+                const bar = document.getElementById('load-bar');
+                if (bar) bar.style.width = pct + '%';
+            }, 200);
+
+            // Load dari server
+            await loadDB();
+            initCekTelat();  // auto-detect cicilan telat saat app load
+            initAutoBackup();
+            initLaporanFilter(); // set filter laporan ke bulan/tahun sekarang
+
+            clearInterval(tick);
+            const bar = document.getElementById('load-bar');
+            if (bar) bar.style.width = '100%';
+
+            setTimeout(() => {
+                overlay.style.transition = 'opacity .3s';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.remove();
+                    navigate('dashboard');
+                }, 300);
+            }, 200);
+        })();
+    </script>
+</body>
+
+</html>
