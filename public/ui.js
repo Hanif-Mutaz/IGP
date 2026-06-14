@@ -213,7 +213,7 @@ function renderDashboard() {
       .reduce((a, c) => a + (c.tagihan - (c.terbayar || 0)), 0), 0);
   const totalNilai = DB.poList.reduce((s, p) => s + p.total, 0);
   const totalTerbayar = DB.poList.reduce((s, p) =>
-    s + p.cicilan.filter(c => c.status === 'lunas').reduce((a, c) => a + c.tagihan, 0), 0);
+    s + (p.cicilan || []).filter(c => c.status === 'lunas').reduce((a, c) => a + c.tagihan, 0), 0);
 
   // Stok
   const stokGood = DB.inventory.filter(i => i.kondisi === 'good').reduce((s, i) => s + i.stok, 0);
@@ -260,7 +260,7 @@ function renderDashboard() {
   // ── Cicilan jatuh tempo ────────────────────────────────────
   const cicilanTelat = [], cicilanHariIni = [], cicilanMendatang = [];
   DB.poList.filter(p => p.status !== 'lunas' && p.status !== 'retur').forEach(p => {
-    p.cicilan.forEach(c => {
+    (p.cicilan || []).forEach(c => {
       if (c.status === 'lunas' || c.status === 'batal') return;
       const tgl = parseTglShortGlobal(c.jatuh);
       if (!tgl) return;
@@ -302,7 +302,7 @@ function renderDashboard() {
       if (d && d.length >= 3 && parseInt(d[2]) === yr && (_BULAN_MAP[d[1]] ?? -1) === bIdx) {
         bundle += p.bundle;
       }
-      p.cicilan.forEach(c => {
+      (p.cicilan || []).forEach(c => {
         if (c.status !== 'lunas') return;
         const dc = c.tglBayar ? c.tglBayar.split('-') : (c.jatuh ? c.jatuh.split(' ') : null);
         if (!dc) return;
@@ -416,7 +416,7 @@ function renderDashboard() {
       </div>
       <div class="stat-card">
         <div class="stat-label">Cicilan kurang bayar</div>
-        <div class="stat-val" style="color:#FAC775">${DB.poList.reduce((s, p) => s + p.cicilan.filter(c => c.status === 'kurang').length, 0)}</div>
+        <div class="stat-val" style="color:#FAC775">${DB.poList.reduce((s, p) => s + (p.cicilan || []).filter(c => c.status === 'kurang').length, 0)}</div>
         <div class="stat-sub">termin belum penuh</div>
       </div>
     </div>
@@ -493,7 +493,7 @@ function renderDashboard() {
           <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
             <div style="font-size:11px;color:var(--text4);margin-bottom:4px">Kurang bayar</div>
             <div style="font-size:15px;font-weight:600;color:#FAC775">
-              ${DB.poList.reduce((s, p) => s + p.cicilan.filter(c => c.status === 'kurang').length, 0)} termin
+              ${DB.poList.reduce((s, p) => s + (p.cicilan || []).filter(c => c.status === 'kurang').length, 0)} termin
             </div>
           </div>
         </div>
@@ -624,12 +624,13 @@ function renderInventory() {
   const kategoriFilter = document.getElementById('inv-kategori')?.parentElement?.parentElement || document.getElementById('inv-kategori');
   const invKategoriEl = document.getElementById('inv-kategori');
   if (invKategoriEl) {
-    invKategoriEl.style.display = (tab === 'jual' || tab === 'sovenir') ? 'none' : '';
+    invKategoriEl.style.display = (tab === 'jual' || tab === 'sovenir' || tab === 'reward') ? 'none' : '';
   }
 
   let data = DB.inventory.filter(item => {
     if (tab === 'jual' && item.kategori !== 'jual') return false;
     if (tab === 'sovenir' && item.kategori !== 'sovenir') return false;
+    if (tab === 'reward' && item.kategori !== 'reward') return false;
     if (kondisi && item.kondisi !== kondisi) return false;
     if (kategori && item.kategori !== kategori) return false;
     if (search && !item.nama.toLowerCase().includes(search)) return false;
@@ -648,7 +649,9 @@ function renderInventory() {
       : (isKritis ? '<span class="badge badge-warn">Kritis</span>' : '<span class="badge badge-good">Good</span>');
     const katBadge = item.kategori === 'sovenir'
       ? '<span class="badge badge-sovenir">Sovenir</span>'
-      : '<span class="badge badge-active">Barang jual</span>';
+      : item.kategori === 'reward'
+        ? '<span class="badge" style="background:#2a1a05;color:#FAC775;border-color:#8B6914">🎁 Reward</span>'
+        : '<span class="badge badge-active">Barang jual</span>';
     const hargaStr = item.harga ? `<span style="color:#5DCAA5">${fmtRpFull(item.harga)}</span>` : '<span style="color:var(--border)">—</span>';
     return `<tr>
       <td><strong style="color:var(--text)">${item.nama}</strong></td>
@@ -919,61 +922,77 @@ function renderKonsumenDetail(id) {
       ${poHtml || '<div style="color:var(--text4);font-size:13px;padding:8px 0">Belum ada PO</div>'}
     </div>
     <div class="card">
-      <div class="card-title">Komisi Konsumen</div>
-      <div style="font-size:12px;color:var(--text4);margin-bottom:12px">Komisi ${fmtRpFull(DB.settings.komisi_koor || 15000)}/bundle — dicairkan saat PO lunas.</div>
-      <div class="stat-grid-3" style="margin-bottom:12px">
-        <div class="stat-card"><div class="stat-label">Bundle lunas</div><div class="stat-val" style="color:#5DCAA5">${bundleLunas}</div></div>
-        <div class="stat-card"><div class="stat-label">Komisi earned</div><div class="stat-val" style="color:#5DCAA5">${fmtRp(komisiKons)}</div></div>
-        <div class="stat-card"><div class="stat-label">Komisi pending</div><div class="stat-val" style="color:#FAC775">${fmtRp(komisiPending)}</div><div class="stat-sub">${bundleBerjalan} bundle berjalan</div></div>
-      </div>
-
-      <div style="font-size:11px;color:var(--text4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Riwayat komisi per PO</div>
-      ${poTerkait.length ? `<table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr>
-          <th style="padding:5px 8px;color:var(--text4);text-align:left;border-bottom:0.5px solid var(--border)">PO</th>
-          <th style="padding:5px 8px;color:var(--text4);text-align:left;border-bottom:0.5px solid var(--border)">Tanggal</th>
-          <th style="padding:5px 8px;color:var(--text4);text-align:center;border-bottom:0.5px solid var(--border)">Bundle</th>
-          <th style="padding:5px 8px;color:var(--text4);text-align:left;border-bottom:0.5px solid var(--border)">Status</th>
-          <th style="padding:5px 8px;color:var(--text4);text-align:right;border-bottom:0.5px solid var(--border)">Komisi</th>
-        </tr></thead>
-        <tbody>${poTerkait.map(po => {
-    const komisiPO = po.bundle * (DB.settings.komisi_koor || 15000);
-    const isCair = po.status === 'lunas';
-    const isRetur = po.status === 'retur';
-    const statusBadge = isRetur
-      ? '<span style="font-size:10px;color:#F09595;background:#3a1000;padding:1px 6px;border-radius:4px">Retur</span>'
-      : isCair ? '<span style="font-size:10px;color:#5DCAA5;background:#0a1a10;padding:1px 6px;border-radius:4px">Lunas ✓</span>'
-        : '<span style="font-size:10px;color:#FAC775;background:#1a1200;padding:1px 6px;border-radius:4px">Berjalan</span>';
-    return `<tr>
-            <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2)">
-              <a href="#" onclick="selectPO('${po.id}');navigate('transaksi')" style="color:#AFA9EC;text-decoration:underline dotted">${po.id}</a>
-            </td>
-            <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2);color:var(--text4)">${po.tanggal}</td>
-            <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2);text-align:center">${po.bundle}</td>
-            <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2)">${statusBadge}</td>
-            <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2);text-align:right;color:${isRetur ? '#F09595' : isCair ? '#5DCAA5' : '#FAC775'};font-weight:500">
-              ${isRetur ? '—' : isCair ? '+' + fmtRpFull(komisiPO) : '⏳ ' + fmtRpFull(komisiPO)}
-            </td>
-          </tr>`;
-  }).join('')}</tbody>
-      </table>` : '<div style="font-size:12px;color:var(--text4);padding:8px 0">Belum ada PO.</div>'}
-
-      <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-size:12px;color:var(--text4)">Sudah dicairkan: <strong style="color:var(--text2)">${fmtRpFull(k.komisiDibayar || 0)}</strong></div>
-            ${(k.komisiKotor || 0) - (k.komisiDibayar || 0) > 0
-      ? `<div style="font-size:12px;color:#FAC775;margin-top:3px">Belum dicairkan: <strong>${fmtRpFull((k.komisiKotor || 0) - (k.komisiDibayar || 0))}</strong></div>`
-      : `<div style="font-size:12px;color:#5DCAA5;margin-top:3px">✓ Semua komisi sudah dicairkan</div>`}
-          </div>
-          ${(k.komisiKotor || 0) - (k.komisiDibayar || 0) > 0
-      ? `<button class="btn btn-success" style="font-size:12px;padding:5px 14px" onclick="cairkanKomisiKonsumen(${k.id})">✓ Cairkan ${fmtRp((k.komisiKotor || 0) - (k.komisiDibayar || 0))}</button>`
-      : ''}
+      <div class="card-title">🎁 Reward Koordinator</div>
+      ${(() => {
+      const rewardCfg = DB.settings.rewardConfig || [];
+      // Grade = bundle dari PO yang SUDAH LUNAS saja (real-time)
+      const gradeLunas = poLunasKons.reduce((s, p) => s + (p.bundle || 0), 0);
+      const gradePending = poTerkait.filter(p => p.status !== 'lunas' && p.status !== 'retur').reduce((s, p) => s + (p.bundle || 0), 0);
+      const gradeTotal = gradeLunas + gradePending; // kalau semua lunas
+      // Reward saat ini berdasarkan bundle LUNAS saja
+      const rwCfg = rewardCfg.find(r => gradeLunas >= (r.gradeMin || 0) && (r.gradeMax === null || r.gradeMax === undefined || gradeLunas <= r.gradeMax));
+      // Reward potensial kalau semua PO lunas
+      const rwPotensial = rewardCfg.find(r => gradeTotal >= (r.gradeMin || 0) && (r.gradeMax === null || r.gradeMax === undefined || gradeTotal <= r.gradeMax));
+      const invItem = rwCfg?.invNama ? DB.inventory.find(i => i.nama === rwCfg.invNama) : null;
+      const stokInfo = invItem ? `<span style="font-size:10px;color:var(--text4)">(stok: ${invItem.stok})</span>` : '';
+      // Sudah cair = ada riwayatCair dengan reward di periode ini
+      const sudahCair = (k.riwayatCair || []).some(r => r.reward);
+      // Reward bisa diambil hanya kalau tidak ada PO berjalan
+      const adaPOBerjalan = gradePending > 0;
+      const grade = gradeLunas;
+      return `
+        <div class="stat-grid-3" style="margin-bottom:12px">
+          <div class="stat-card"><div class="stat-label">Grade saat ini</div><div class="stat-val" style="color:#FAC775;font-size:20px">${gradeLunas}</div><div class="stat-sub">bundle lunas</div></div>
+          <div class="stat-card"><div class="stat-label">Reward sekarang</div><div class="stat-val" style="font-size:13px">${rwCfg ? `<span style="color:#FAC775">🎁 ${rwCfg.reward}</span><br>${stokInfo}` : '<span style="color:var(--text4);font-size:12px">Belum memenuhi syarat</span>'}</div></div>
+          <div class="stat-card"><div class="stat-label">Bundle berjalan</div><div class="stat-val" style="color:#FAC775">${gradePending}</div><div class="stat-sub">${rwPotensial && rwPotensial !== rwCfg ? 'Potensi: 🎁' + rwPotensial.reward : gradePending > 0 ? 'Menunggu lunas' : ''}</div></div>
         </div>
-        ${(k.riwayatCair || []).length ? `
-        <div style="margin-top:10px;font-size:11px;color:var(--text4);text-transform:uppercase;letter-spacing:.5px">Riwayat pencairan</div>
-        ${(k.riwayatCair || []).map(rc => `<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text4);padding:3px 0">${rc.tanggal}<span style="color:#5DCAA5">−${fmtRpFull(rc.jumlah)}</span></div>`).join('')}` : ''}
-      </div>
+        ${rewardCfg.length === 0 ? '<div style="font-size:12px;color:#FAC775;background:#2a1a0a;border:1px dashed #8B6914;border-radius:6px;padding:8px 12px;margin-bottom:10px">⚠️ Belum ada konfigurasi reward. Buka Settings → Reward Koordinator.</div>' : ''}
+        <div style="font-size:11px;color:var(--text4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Riwayat PO per grade</div>
+        ${poTerkait.length ? `<table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr>
+            <th style="padding:5px 8px;color:var(--text4);text-align:left;border-bottom:0.5px solid var(--border)">PO</th>
+            <th style="padding:5px 8px;color:var(--text4);text-align:left;border-bottom:0.5px solid var(--border)">Tanggal</th>
+            <th style="padding:5px 8px;color:var(--text4);text-align:center;border-bottom:0.5px solid var(--border)">Bundle</th>
+            <th style="padding:5px 8px;color:var(--text4);text-align:left;border-bottom:0.5px solid var(--border)">Status</th>
+          </tr></thead>
+          <tbody>${poTerkait.map(po => {
+        const isLunas = po.status === 'lunas';
+        const isRetur = po.status === 'retur';
+        const stBadge = isRetur
+          ? '<span style="font-size:10px;color:#F09595;background:#3a1000;padding:1px 6px;border-radius:4px">Retur</span>'
+          : isLunas ? '<span style="font-size:10px;color:#5DCAA5;background:#0a1a10;padding:1px 6px;border-radius:4px">Lunas ✓</span>'
+            : '<span style="font-size:10px;color:#FAC775;background:#1a1200;padding:1px 6px;border-radius:4px">Berjalan</span>';
+        return `<tr>
+              <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2)">
+                <a href="#" onclick="selectPO('${po.id}');navigate('transaksi')" style="color:#AFA9EC;text-decoration:underline dotted">${po.id}</a>
+              </td>
+              <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2);color:var(--text4)">${po.tanggal}</td>
+              <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2);text-align:center">${po.bundle}</td>
+              <td style="padding:7px 8px;border-bottom:0.5px solid var(--border2)">${stBadge}</td>
+            </tr>`;
+      }).join('')}</tbody>
+        </table>` : '<div style="font-size:12px;color:var(--text4);padding:8px 0">Belum ada PO.</div>'}
+        <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div>
+              ${sudahCair
+          ? `<div style="font-size:12px;color:#5DCAA5">✓ Reward sudah dicairkan</div>
+                   <div style="font-size:11px;color:var(--text4);margin-top:3px">${(k.riwayatCair || []).filter(r => r.reward).map(rc => `${rc.tanggal}: ${rc.reward} (grade ${rc.grade}, ${rc.periode})`).join('<br>')}</div>`
+          : rwCfg
+            ? adaPOBerjalan
+              ? `<div style="font-size:12px;color:#FAC775">Reward tersedia: <strong>${rwCfg.reward}</strong> \u2014 <span style="color:var(--text4)">tunggu ${gradePending} bundle berjalan lunas</span></div>`
+              : `<div style="font-size:12px;color:#FAC775">Reward tersedia: <strong>${rwCfg.reward}</strong></div>`
+            : `<div style="font-size:12px;color:var(--text4)">Grade ${gradeLunas} belum memenuhi syarat reward manapun${rwPotensial ? ` (potensi: 🎁${rwPotensial.reward} jika ${gradePending} bundle berjalan lunas)` : ''}</div>`}
+            </div>
+            ${rwCfg && !sudahCair && !adaPOBerjalan
+          ? `<button class="btn" style="font-size:12px;padding:5px 14px;background:#2a1a05;border-color:#8B6914;color:#FAC775"
+                  onclick="cairkanRewardKonsumen(${k.id})">🎁 Cairkan Reward</button>`
+          : adaPOBerjalan && rwCfg && !sudahCair
+            ? `<span style="font-size:11px;color:var(--text4)">⏳ Tunggu semua PO lunas dulu</span>`
+            : ''}
+          </div>
+        </div>`;
+    })()}
       ${(k.kreditSaldo || 0) > 0 ? `
       <div style="margin-top:10px;padding:8px 12px;background:#0a1a10;border-radius:6px;border:0.5px solid #1a3020">
         <div style="font-size:12px;font-weight:500;color:#5DCAA5;margin-bottom:4px">💰 Kredit konsumen: ${fmtRpFull(k.kreditSaldo)}</div>
@@ -1220,7 +1239,10 @@ function renderPODetail(id) {
       ? `<div style="font-size:10px;color:var(--text4);margin-top:2px">&#128100; ${c.collector}</div>` : '';
     return `<tr style="${rowBg};${opacity}">
       <td style="padding:9px 10px;font-size:13px;border-bottom:0.5px solid var(--border2)">${c.n}</td>
-      <td style="padding:9px 10px;font-size:13px;${jatuhColor}border-bottom:0.5px solid var(--border2)">${c.jatuh}</td>
+      <td style="padding:9px 10px;font-size:13px;${jatuhColor}border-bottom:0.5px solid var(--border2)">
+        <span id="jatuh-disp-${p.id}-${c.n}">${c.jatuh}</span>
+        <button onclick="editJatuhTermin('${p.id}',${c.n})" style="font-size:9px;padding:1px 5px;margin-left:4px;border-radius:3px;border:0.5px solid var(--border);background:var(--bg3);color:var(--text4);cursor:pointer" title="Edit tanggal jatuh tempo">\u270f</button>
+      </td>
       <td style="padding:9px 10px;font-size:13px;border-bottom:0.5px solid var(--border2)">${fmtRpFull(c.tagihan)}${c.terbayar && c.terbayar < c.tagihan ? '<div style="font-size:10px;color:#FAC775">terbayar ' + fmtRpFull(c.terbayar) + '</div>' : ''}</td>
       <td style="padding:9px 10px;border-bottom:0.5px solid var(--border2)">${stBadgeC}${collDisplay}</td>
       <td style="padding:9px 10px;border-bottom:0.5px solid var(--border2);display:flex;gap:5px;align-items:center">
@@ -1663,7 +1685,11 @@ function renderSettings() {
 
       <!-- Rate Komisi -->
       <div class="card">
-        <div class="card-title">Rate komisi entitas</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="card-title" style="margin-bottom:0">Rate komisi entitas</div>
+          <button class="btn" style="font-size:11px;padding:3px 10px" onclick="resetKomisiDefault()">Reset ke default</button>
+        </div>
+        ${s.komisi_sales < 1000 ? `<div style="background:#2a0e0e;border:1px solid #501313;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#F09595">\u26a0\ufe0f Komisi Sales (${fmtRpFull(s.komisi_sales)}) terlihat terlalu kecil. Cek kembali atau klik "Reset ke default".</div>` : ''}
         <div class="srow">
           <span class="slabel">Sales (per bundle)</span>
           <input class="input" value="${fmtRpFull(s.komisi_sales)}"
@@ -1677,7 +1703,7 @@ function renderSettings() {
             onblur="updateSettingRp('komisi_nego',this.value,this)" />
         </div>
         <div class="srow">
-          <span class="slabel">Konsumen (per bundle, saat PO lunas)</span>
+          <span class="slabel">Konsumen (legacy fallback rate/bundle)</span>
           <input class="input" value="${fmtRpFull(s.komisi_koor)}"
             style="width:150px;text-align:right"
             onblur="updateSettingRp('komisi_koor',this.value,this)" />
@@ -1699,6 +1725,37 @@ function renderSettings() {
           <div style="text-align:right"><button class="btn btn-success" style="padding:6px 18px;font-size:12px" onclick="saveDB();toast('Rate komisi disimpan ✓','success')">✓ Simpan</button></div>
         </div>
       </div>
+
+      <!-- Reward Config Koordinator -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-title" style="margin-bottom:4px">&#127873; Reward Koordinator (Grade-based)</div>
+        <div style="font-size:11px;color:var(--text4);margin-bottom:12px">
+          Grade = total bundle lunas per konsumen dalam periode. Reward diambil dari inventory secara otomatis saat dicairkan.
+        </div>
+        <div id="reward-config-rows" style="margin-bottom:10px">
+          ${(s.rewardConfig || []).map(r => `
+            <div class="reward-cfg-row" style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+              <input class="input rc-min" type="number" value="${r.gradeMin || 0}" min="0" style="width:90px;font-size:12px" placeholder="Grade min">
+              <span style="font-size:11px;color:var(--text4)">-</span>
+              <input class="input rc-max" type="number" value="${r.gradeMax ?? ''}" min="0" style="width:140px;font-size:12px" placeholder="maks (kosong=tak terbatas)">
+              <input class="input rc-reward" type="text" value="${r.reward || ''}" style="width:150px;font-size:12px" placeholder="Nama reward" list="inv-rlist">
+              <datalist id="inv-rlist">${(DB.inventory || []).map(i => `<option value="${i.nama}">`).join('')}</datalist>
+              <input class="input rc-inv" type="text" value="${r.invNama || ''}" style="width:150px;font-size:12px" placeholder="Nama di inventory" list="inv-rlist2">
+              <datalist id="inv-rlist2">${(DB.inventory || []).map(i => `<option value="${i.nama}">`).join('')}</datalist>
+              <input class="input rc-ket" type="text" value="${r.keterangan || ''}" style="width:130px;font-size:12px" placeholder="Keterangan (opsional)">
+              <button class="btn btn-danger" style="padding:3px 8px;font-size:12px" onclick="this.closest('.reward-cfg-row').remove()">x</button>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" style="font-size:12px" onclick="addRewardConfigRow()">+ Tambah Rule</button>
+          <button class="btn btn-success" style="font-size:12px;border-color:#1a6e40" onclick="saveRewardConfig()">Simpan Konfigurasi Reward</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text4)">
+          <strong>Kolom:</strong> Grade Min | Grade Max | Nama Reward | Nama di Inventory (untuk kurangi stok) | Keterangan
+        </div>
+      </div>
+
+
 
       <!-- Stok minimum dihapus dari settings -- notif otomatis jika stok < 20 -->
     </div>`;
@@ -2025,7 +2082,7 @@ function renderLaporanTab(tab) {
         </div>
         <div class="stat-card">
           <div class="stat-label">Cicilan kurang bayar</div>
-          <div class="stat-val" style="color:#FAC775">${DB.poList.reduce((s, p) => s + p.cicilan.filter(c => c.status === 'kurang').length, 0)}</div>
+          <div class="stat-val" style="color:#FAC775">${DB.poList.reduce((s, p) => s + (p.cicilan || []).filter(c => c.status === 'kurang').length, 0)}</div>
           <div class="stat-sub">termin dengan sisa tagihan</div>
         </div>
         <div class="stat-card">
@@ -2744,13 +2801,32 @@ function setEntitasLaporanTab(tab) {
       : bulanSel !== 'semua' && tahunSel !== 'semua' ? `${bulanSel} ${tahunSel}`
         : bulanSel !== 'semua' ? bulanSel : `Tahun ${tahunSel}`;
     const konsList = DB.konsumen.filter(k => k.aktif !== false);
-    container.innerHTML = konsList.map(k => {
+    const rewardCfg = DB.settings.rewardConfig || [];
+    // Tampilkan info config reward di atas
+    const cfgInfo = rewardCfg.length
+      ? `<div style="background:var(--bg2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px">
+          <div style="font-weight:600;color:var(--text2);margin-bottom:6px">\u{1F381} Konfigurasi Reward Aktif</div>
+          ${rewardCfg.map(r => `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:0.5px solid var(--border2)">
+            <span style="color:var(--text4)">Grade ${r.gradeMin}\u2013${r.gradeMax ?? '\u221e'}</span>
+            <span style="font-weight:500">${r.reward}</span>
+            ${r.invNama ? `<span style="color:var(--text4);font-size:11px">inv: ${r.invNama}</span>` : ''}
+          </div>`).join('')}
+        </div>`
+      : `<div style="background:#2a1a0a;border:1px dashed #8B6914;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#FAC775">
+          \u26A0\uFE0F Belum ada konfigurasi reward. Buka <strong>Settings</strong> dan buat rule reward terlebih dahulu.
+        </div>`;
+    container.innerHTML = cfgInfo + (konsList.map(k => {
       const closedPO = DB.poList.filter(p =>
         (p.konsumenId === k.id || p.konsumen === k.nama) &&
         p.status === 'lunas' && poInBulan(p));
-      const bundleClosed = closedPO.reduce((s, p) => s + p.bundle, 0);
-      const komisiRate2 = DB.settings.komisi_koor || 15000;
-      const komisi2 = bundleClosed * komisiRate2;
+      const grade = closedPO.reduce((s, p) => s + p.bundle, 0);
+      // Cari reward berdasarkan grade
+      const rwCfg = rewardCfg.find(r => grade >= (r.gradeMin || 0) && (r.gradeMax === null || r.gradeMax === undefined || grade <= r.gradeMax));
+      const rwLabel = rwCfg
+        ? `<span style="color:#FAC775;font-weight:600">\u{1F381} ${rwCfg.reward}</span>${rwCfg.invNama ? ` <span style="font-size:10px;color:var(--text4)">(stok: ${(DB.inventory.find(i => i.nama === rwCfg.invNama) || {}).stok ?? '?'})</span>` : ''}`
+        : `<span style="color:var(--text4);font-size:12px">Tidak ada reward untuk grade ini</span>`;
+      // Cek riwayat cair periode ini
+      const sudahCair = (k.riwayatCair || []).some(r => r.periode === label2 && r.reward);
       return `<div class="card" style="margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div style="display:flex;align-items:center;gap:10px">
@@ -2762,15 +2838,18 @@ function setEntitasLaporanTab(tab) {
         </div>
         <div class="stat-grid-3" style="margin-bottom:12px">
           <div class="stat-card"><div class="stat-label">PO Lunas</div><div class="stat-val">${closedPO.length}</div></div>
-          <div class="stat-card"><div class="stat-label">Bundle &times; ${fmtRp(komisiRate2)}</div><div class="stat-val" style="color:var(--text4);font-size:14px">${bundleClosed}</div></div>
-          <div class="stat-card"><div class="stat-label">Total komisi</div><div class="stat-val" style="color:#5DCAA5">${fmtRp(komisi2)}</div></div>
+          <div class="stat-card"><div class="stat-label">Grade (bundle lunas)</div><div class="stat-val" style="color:#FAC775;font-size:18px">${grade}</div></div>
+          <div class="stat-card"><div class="stat-label">Reward</div><div class="stat-val" style="font-size:13px">${rwLabel}</div></div>
         </div>
-        <div style="display:flex;justify-content:flex-end;padding-top:10px;border-top:0.5px solid var(--border2)">
+        ${sudahCair ? `<div style="font-size:11px;color:#5DCAA5;margin-bottom:8px">✓ Reward sudah dicairkan periode ini</div>` : ''}
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:10px;border-top:0.5px solid var(--border2)">
           <button class="btn btn-success" style="font-size:11px;padding:4px 14px;border-color:#1a6e40"
-            onclick="cetakKwitansiKomisiKonsumen('${k.id}')">&#x1F9FE; Kwitansi Komisi</button>
+            onclick="cetakKwitansiKomisiKonsumen('${k.id}')">&#x1F9FE; Kwitansi</button>
+          ${rwCfg && !sudahCair ? `<button class="btn" style="font-size:11px;padding:4px 14px;background:#2a1a05;border-color:#8B6914;color:#FAC775"
+            onclick="cairkanRewardKonsumen('${k.id}')">\u{1F381} Cairkan Reward</button>` : ''}
         </div>
       </div>`;
-    }).join('') || '<div class="empty">Tidak ada data Konsumen</div>';
+    }).join('') || '<div class="empty">Tidak ada data Konsumen</div>');
   }
 
   // ── KEPALA CABANG ─────────────────────────────────────────────

@@ -1075,9 +1075,10 @@
                     <input class="input" id="bm-nama-baru" placeholder="Nama barang baru..." />
                     <div style="margin-top:8px">
                         <div class="label">Kategori</div>
-                        <select class="select" id="bm-kategori">
+                        <select class="select" id="bm-kategori" onchange="onBmKategoriChange(this.value)">
                             <option value="jual">Barang jual</option>
                             <option value="sovenir">Sovenir</option>
+                            <option value="reward">Reward Koordinator</option>
                         </select>
                     </div>
                 </div>
@@ -1095,7 +1096,7 @@
                     <input class="input" type="number" id="bm-jumlah" value="10" min="1" />
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" id="bm-harga-row">
                 <div class="form-group" style="margin:0">
                     <div class="label">Harga jual (Rp)</div>
                     <input class="input" id="bm-harga" placeholder=""
@@ -1109,6 +1110,12 @@
             </div>
             <div class="form-row">
                 <div class="form-group" style="margin:0">
+                    <div id="bm-reward-info"
+                        style="display:none;background:#2a1a05;border:1px dashed #8B6914;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#FAC775">
+                        🎁 <strong>Reward Koordinator</strong><br>
+                        <div id="bm-reward-cfg-list" style="margin-top:6px;color:var(--text4)">Memuat konfigurasi
+                            reward...</div>
+                    </div>
                     <div class="label">Supplier</div>
                     <input class="input" id="bm-supplier" value="PT Sumber Makmur" />
                 </div>
@@ -1732,6 +1739,7 @@
                         <div class="tab active" data-inv-tab="semua">Semua barang</div>
                         <div class="tab" data-inv-tab="jual">Barang jual</div>
                         <div class="tab" data-inv-tab="sovenir">Sovenir</div>
+                        <div class="tab" data-inv-tab="reward">🎁 Reward</div>
                         <div class="tab" data-inv-tab="bundle">Bundle / Set</div>
                         <div class="tab" data-inv-tab="riwayat">Riwayat masuk</div>
                         <div class="tab" data-inv-tab="retur">Retur</div>
@@ -1748,6 +1756,7 @@
                             <option value="">Semua kategori</option>
                             <option value="jual">Barang jual</option>
                             <option value="sovenir">Sovenir</option>
+                            <option value="reward">Reward Koordinator</option>
                         </select>
                     </div>
                     <div class="tbl-wrap">

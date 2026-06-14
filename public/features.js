@@ -92,6 +92,30 @@ function submitBarangMasuk() {
     renderInventory();
 }
 
+function onBmKategoriChange(val) {
+    const hargaRow = document.getElementById('bm-harga-row');
+    const rewardInfo = document.getElementById('bm-reward-info');
+    const cfgList = document.getElementById('bm-reward-cfg-list');
+    if (val === 'reward') {
+        // Sembunyikan harga
+        if (hargaRow) hargaRow.style.display = 'none';
+        // Tampilkan info grade config
+        if (rewardInfo) rewardInfo.style.display = 'block';
+        if (cfgList) {
+            const cfg = DB.settings.rewardConfig || [];
+            if (!cfg.length) {
+                cfgList.innerHTML = '\u26a0\ufe0f Belum ada konfigurasi reward di Settings. Tambahkan dulu sebelum input barang reward.';
+            } else {
+                cfgList.innerHTML = '<strong>Konfigurasi reward aktif:</strong><br>' +
+                    cfg.map(r => `\u2022 Grade ${r.gradeMin}\u2013${r.gradeMax ?? '\u221e'}: <strong>${r.reward}</strong>${r.invNama ? ` (nama di inventory: <em>${r.invNama}</em>)` : ''}`).join('<br>');
+            }
+        }
+    } else {
+        if (hargaRow) hargaRow.style.display = '';
+        if (rewardInfo) rewardInfo.style.display = 'none';
+    }
+}
+
 function refreshBarangOptions() {
     const namaSet = [...new Set(DB.inventory.map(i => i.nama))];
     const sel = document.getElementById('bm-nama');
@@ -623,6 +647,7 @@ function submitEditKonsumen() {
     k.kota = document.getElementById('ke-kota').value.trim() || k.kota;
     k.alamat = document.getElementById('ke-alamat').value.trim() || k.alamat;
     k.inisial = k.nama.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
+    saveDB();
     closeModal('modal-edit-konsumen');
     toast(`Data ${k.nama} berhasil diperbarui`);
     addAudit(`Edit konsumen: ${k.nama}`);
@@ -637,6 +662,7 @@ function toggleAktifKonsumen(id) {
         if (!confirm(`${k.nama} masih punya tagihan ${fmtRp(k.tagihan)}. Yakin nonaktifkan?`)) return;
     }
     k.aktif = !k.aktif;
+    saveDB();
     toast(`Konsumen ${k.nama} ${k.aktif ? 'diaktifkan' : 'dinonaktifkan'}`);
     addAudit(`Konsumen ${k.nama} ${k.aktif ? 'aktif' : 'nonaktif'}`);
     renderKonsumenList();
@@ -658,6 +684,7 @@ function submitKonsumen() {
 
     // Reset form
     ['k-nama', 'k-telp', 'k-kota', 'k-alamat'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    saveDB();
     closeModal('modal-konsumen');
     toast(`Konsumen ${nama} berhasil ditambahkan`);
     addAudit(`Tambah konsumen: ${nama}`);
@@ -1162,6 +1189,54 @@ function saveTanggalPO(poId, isoVal) {
     renderPODetail(poId);
     renderPOList();
 }
+
+
+// ── Edit Tanggal Jatuh Tempo Termin ──────────────────────────
+function editJatuhTermin(poId, nTermin) {
+    const p = DB.poList.find(x => x.id === poId);
+    const c = p?.cicilan.find(x => x.n === nTermin);
+    if (!p || !c) return;
+
+    const dispEl = document.getElementById(`jatuh-disp-${poId}-${nTermin}`);
+    if (!dispEl) return;
+
+    // Parse jatuh ke ISO untuk input date
+    const BULAN_MAP = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, Mei: 4, Jun: 5, Jul: 6, Agu: 7, Sep: 8, Okt: 9, Nov: 10, Des: 11 };
+    let isoVal = '';
+    if (c.jatuh) {
+        const parts = c.jatuh.split(' ');
+        if (parts.length >= 2) {
+            const m = BULAN_MAP[parts[1]];
+            const d = parseInt(parts[0]);
+            // Ambil tahun dari bagian ketiga atau dari tanggal PO
+            let y = parts[2] ? parseInt(parts[2]) : parseInt((p.tanggal || '').split(' ')[2] || new Date().getFullYear());
+            if (!isNaN(d) && m !== undefined && !isNaN(y)) {
+                isoVal = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            }
+        }
+    }
+
+    dispEl.innerHTML = `<input type="date" value="${isoVal}" id="jatuh-edit-${poId}-${nTermin}"
+        style="font-size:12px;padding:2px 5px;border-radius:4px;border:1px solid var(--accent);background:var(--bg3);color:var(--text);width:130px"
+        onkeydown="if(event.key==='Escape'){renderPODetail('${poId}')}"
+        onchange="saveJatuhTermin('${poId}',${nTermin},this.value)" />`;
+    document.getElementById(`jatuh-edit-${poId}-${nTermin}`)?.focus();
+}
+
+function saveJatuhTermin(poId, nTermin, isoVal) {
+    if (!isoVal) return;
+    const p = DB.poList.find(x => x.id === poId);
+    const c = p?.cicilan.find(x => x.n === nTermin);
+    if (!p || !c) return;
+
+    const oldJatuh = c.jatuh;
+    c.jatuh = formatDateShort(isoVal);
+    saveDB();
+    toast(`Jatuh tempo termin ${nTermin} PO ${poId} diperbarui: ${oldJatuh} → ${c.jatuh}`, 'success');
+    addAudit(`Edit jatuh tempo termin ${nTermin} PO ${poId}: ${oldJatuh} → ${c.jatuh}`);
+    renderPODetail(poId);
+}
+
 
 function cetakPO(id) {
     const p = DB.poList.find(x => x.id === id);
@@ -2248,13 +2323,37 @@ function saveSettingsCicilan() {
 
 function updateSettingRp(key, val, el) {
     const num = parseRp(val);
+    // Guard: komisi tidak boleh terlalu kecil (< 100 = kemungkinan salah input)
+    const MIN_KOMISI = { komisi_sales: 1000, komisi_nego: 1000, komisi_koor: 100, komisi_coll: 100, komisi_kc: 100 };
+    if (MIN_KOMISI[key] && num < MIN_KOMISI[key] && num > 0) {
+        if (!confirm(`Nilai ${fmtRpFull(num)} sepertinya terlalu kecil untuk ${key}.\nBiasanya dalam ribuan atau jutaan rupiah.\n\nTetap simpan ${fmtRpFull(num)}?`)) {
+            if (el) el.focus();
+            return;
+        }
+    }
     DB.settings[key] = num;
     if (el) el.value = fmtRpFull(num);
-
     saveDB();
-    toast('Pengaturan disimpan & komisi entitas diperbarui');
+    toast('Pengaturan disimpan');
     addAudit(`Update setting: ${key} = ${fmtRpFull(num)}`);
     if (typeof renderEntitasList === 'function') renderEntitasList();
+}
+
+function resetKomisiDefault() {
+    const defaults = {
+        komisi_sales: 1150000,
+        komisi_nego: 300000,
+        komisi_koor: 200000,
+        komisi_coll: 50000,
+        komisi_kc: 5000
+    };
+    const lines = Object.entries(defaults).map(([k, v]) => `${k}: ${fmtRpFull(v)}`).join('\n');
+    if (!confirm('Reset rate komisi ke nilai default?\n\n' + lines + '\n\nNilai yang sudah diubah akan ditimpa.')) return;
+    Object.assign(DB.settings, defaults);
+    saveDB();
+    toast('Rate komisi direset ke default', 'success');
+    addAudit('Reset komisi ke default');
+    renderSettings();
 }
 
 function updatePerusahaan(showToast = false) {
@@ -3569,6 +3668,135 @@ function cairkanKomisi(id) {
     renderEntitasDetail(id);
 }
 
+// ── Dynamic Reward Config ──────────────────────────────────────
+// DB.settings.rewardConfig = [{ id, gradeMin, gradeMax, reward, invNama, keterangan }]
+// grade = bundleLunas per konsumen dalam periode
+
+function getRewardForGrade(grade) {
+    const cfg = DB.settings.rewardConfig || [];
+    const match = cfg.find(r => grade >= (r.gradeMin || 0) && (r.gradeMax === null || r.gradeMax === undefined || grade <= r.gradeMax));
+    if (match) return match;
+    return null;
+}
+
+function saveRewardConfig() {
+    const rows = document.querySelectorAll('.reward-cfg-row');
+    const configs = [];
+    let hasOverlap = false;
+    rows.forEach(row => {
+        const min = parseInt(row.querySelector('.rc-min').value) || 0;
+        const maxVal = row.querySelector('.rc-max').value;
+        const max = maxVal === '' || maxVal === null ? null : parseInt(maxVal);
+        const reward = row.querySelector('.rc-reward').value.trim();
+        const invNama = row.querySelector('.rc-inv').value.trim();
+        const ket = row.querySelector('.rc-ket').value.trim();
+        if (!reward) return;
+        const maxCmp = max === null ? Infinity : max;
+        configs.forEach(c => {
+            const cMax = c.gradeMax === null ? Infinity : c.gradeMax;
+            if (min <= cMax && maxCmp >= (c.gradeMin || 0)) hasOverlap = true;
+        });
+        configs.push({ id: Date.now() + Math.random(), gradeMin: min, gradeMax: max, reward, invNama, keterangan: ket });
+    });
+    if (hasOverlap) { toast('Ada range grade yang overlap! Perbaiki dulu.', 'error'); return; }
+    if (!DB.settings) DB.settings = {};
+    DB.settings.rewardConfig = configs;
+    saveDB();
+    toast('Konfigurasi reward berhasil disimpan', 'success');
+    addAudit('Update reward config koordinator: ' + configs.length + ' rules');
+    renderSettings();
+}
+
+function addRewardConfigRow(min, max, reward, inv, ket) {
+    min = min || ''; max = max || ''; reward = reward || ''; inv = inv || ''; ket = ket || '';
+    const container = document.getElementById('reward-config-rows');
+    if (!container) return;
+    const invItems = (DB.inventory || []).filter(i => i.kondisi !== 'reject').map(i => i.nama);
+    const row = document.createElement('div');
+    row.className = 'reward-cfg-row';
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap';
+    row.innerHTML =
+        '<input class="input rc-min" type="number" placeholder="Grade min" value="' + min + '" min="0" style="width:90px;font-size:12px" title="Bundle minimum">' +
+        '<span style="font-size:11px;color:var(--text4)">-</span>' +
+        '<input class="input rc-max" type="number" placeholder="maks (kosong=tak terbatas)" value="' + max + '" min="0" style="width:140px;font-size:12px" title="Bundle max, kosong = tidak terbatas">' +
+        '<input class="input rc-reward" type="text" placeholder="Nama reward" value="' + reward + '" style="width:150px;font-size:12px" list="inv-rlist">' +
+        '<datalist id="inv-rlist">' + invItems.map(n => '<option value="' + n + '">').join('') + '</datalist>' +
+        '<input class="input rc-inv" type="text" placeholder="Nama di inventory" value="' + inv + '" style="width:150px;font-size:12px" list="inv-rlist2">' +
+        '<datalist id="inv-rlist2">' + invItems.map(n => '<option value="' + n + '">').join('') + '</datalist>' +
+        '<input class="input rc-ket" type="text" placeholder="Keterangan (opsional)" value="' + ket + '" style="width:130px;font-size:12px">' +
+        '<button class="btn btn-danger" style="padding:3px 8px;font-size:12px" onclick="this.closest(\'.reward-cfg-row\').remove()">x</button>';
+    container.appendChild(row);
+}
+
+function cairkanRewardKonsumen(id) {
+    const k = DB.konsumen.find(x => x.id === id);
+    if (!k) return;
+
+    const bulanEl = document.getElementById('laporan-bulan');
+    const tahunEl = document.getElementById('laporan-tahun');
+    const bulanSel = bulanEl ? bulanEl.value : 'semua';
+    const tahunSel = tahunEl ? tahunEl.value : 'semua';
+
+    const poLunas = DB.poList.filter(p =>
+        (p.konsumenId === k.id || p.konsumen === k.nama) &&
+        p.status === 'lunas' && poMatchFilter(p, bulanSel, tahunSel));
+    const grade = poLunas.reduce((s, p) => s + (p.bundle || 0), 0);
+    const rewardCfg = getRewardForGrade(grade);
+
+    if (!rewardCfg) {
+        toast('Grade ' + grade + ' tidak masuk range reward manapun. Cek konfigurasi reward di Settings.', 'warn');
+        return;
+    }
+
+    // Cek stok inventory - wajib ada jika invNama dikonfigurasi
+    let invItem = null;
+    if (rewardCfg.invNama) {
+        invItem = DB.inventory.find(i => i.nama === rewardCfg.invNama && i.kategori === 'reward');
+        if (!invItem) {
+            toast('Barang reward "' + rewardCfg.invNama + '" tidak ditemukan di inventory kategori Reward. Tambahkan dulu di Inventory \u2192 tab Reward.', 'error');
+            return;
+        }
+        if (invItem.stok < 1) {
+            toast('Stok "' + rewardCfg.invNama + '" habis (0). Tambahkan stok di Inventory \u2192 tab Reward sebelum mencairkan.', 'error');
+            return;
+        }
+    }
+
+    const periodeLabel = (bulanSel === 'semua' && tahunSel === 'semua') ? 'Semua Periode'
+        : bulanSel !== 'semua' && tahunSel !== 'semua' ? bulanSel + ' ' + tahunSel
+            : bulanSel !== 'semua' ? bulanSel : 'Tahun ' + tahunSel;
+
+    const stokSekarang = invItem ? invItem.stok : '-';
+    let msg = 'Cairkan reward untuk ' + k.nama + '?\n\nPeriode: ' + periodeLabel +
+        '\nGrade: ' + grade + ' bundle lunas' +
+        '\nReward: ' + rewardCfg.reward +
+        (invItem ? '\nStok sekarang: ' + stokSekarang + ' \u2192 akan jadi ' + (stokSekarang - 1) : '');
+    if (rewardCfg.keterangan) msg += '\nKet: ' + rewardCfg.keterangan;
+    if (!confirm(msg)) return;
+
+    if (invItem) invItem.stok = Math.max(0, invItem.stok - 1);
+
+    if (!k.riwayatCair) k.riwayatCair = [];
+    const today = new Date();
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    k.riwayatCair.push({
+        tanggal: today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear(),
+        reward: rewardCfg.reward,
+        grade,
+        periode: periodeLabel,
+        invDikurangi: invItem ? rewardCfg.invNama : null
+    });
+
+    saveDB();
+    toast('Reward "' + rewardCfg.reward + '" untuk ' + k.nama + ' (grade ' + grade + ') dicairkan!' +
+        (invItem ? ' Stok inventory -1.' : ''), 'success');
+    addAudit('Cairkan reward ' + k.nama + ': grade ' + grade + ' -> ' + rewardCfg.reward + ' (' + periodeLabel + ')');
+    if (typeof renderKonsumenDetail === 'function') renderKonsumenDetail(id);
+    if (typeof setEntitasLaporanTab === 'function') setEntitasLaporanTab('koordinator');
+}
+
+
+
 function cairkanKomisiKonsumen(id) {
     const k = DB.konsumen.find(x => x.id === id);
     if (!k) return;
@@ -3658,31 +3886,32 @@ function cetakKwitansiKomisi(id) {
     <title>Kwitansi Komisi ${e.nama}</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:'Courier New',monospace;padding:30px 36px;color:#111;background:#fff;font-size:13px}
-      .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-      .co-name{font-size:16px;font-weight:bold;color:#3D5A73;letter-spacing:1px}
-      .co-sub{font-size:11px;color:#555;margin-top:3px}
-      .kwt-box{border:2px solid #3D5A73;padding:8px 16px;text-align:center;min-width:160px}
-      .kwt-box .label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#555}
-      .kwt-box .no{font-size:14px;font-weight:bold;color:#3D5A73;margin-top:2px}
-      hr.tebal{border:none;border-top:2.5px solid #3D5A73;margin:6px 0 2px}
-      hr.tipis{border:none;border-top:1px solid #000;margin:2px 0 14px}
-      .title{text-align:center;font-size:16px;font-weight:bold;letter-spacing:5px;margin:10px 0 16px;color:#3D5A73}
-      .info-grid{display:grid;grid-template-columns:130px 1fr;gap:3px 10px;font-size:12px;margin-bottom:16px}
+      body{font-family:'Courier New',monospace;padding:6mm 8mm;color:#111;background:#fff;font-size:11px;width:241.3mm;min-height:279.4mm}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+      .co-name{font-size:13px;font-weight:bold;color:#3D5A73;letter-spacing:1px}
+      .co-sub{font-size:10px;color:#555;margin-top:2px}
+      .kwt-box{border:1.5px solid #3D5A73;padding:5px 12px;text-align:center;min-width:140px}
+      .kwt-box .label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#555}
+      .kwt-box .no{font-size:12px;font-weight:bold;color:#3D5A73;margin-top:2px}
+      hr.tebal{border:none;border-top:2px solid #3D5A73;margin:4px 0 2px}
+      hr.tipis{border:none;border-top:1px solid #000;margin:2px 0 10px}
+      .title{text-align:center;font-size:13px;font-weight:bold;letter-spacing:4px;margin:8px 0 12px;color:#3D5A73}
+      .info-grid{display:grid;grid-template-columns:120px 1fr;gap:2px 8px;font-size:11px;margin-bottom:12px}
       .info-grid .lbl{color:#555}
       .info-grid .val{font-weight:500}
-      table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px}
-      th{background:#3D5A73;color:#ffffff;padding:8px 10px;text-align:left;font-size:11px}
-      td{padding:8px 10px;border-bottom:1px solid #e8e8e8}
-      .total-box{background:#f7f9f7;border:1.5px solid #3D5A73;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-      .total-box .lbl{font-size:13px;color:#333}
-      .total-box .amt{font-size:22px;font-weight:bold;color:#3D5A73}
-      .terbilang{background:#f7faf7;border:1px dashed #90b090;padding:8px 12px;font-size:11px;color:#555;margin-bottom:20px;font-style:italic}
-      .foot{display:flex;justify-content:space-between;margin-top:36px;font-size:11px}
-      .sign{text-align:center;width:200px}
-      .sign-line{border-top:1px solid #000;padding-top:5px;margin-top:60px}
-      .periode-badge{display:inline-block;background:#E8F0FA;border:1px solid #B8C8D8;padding:2px 10px;border-radius:3px;font-size:11px;color:#3D5A73;font-weight:600}
-      @media print{body{padding:16px 20px}.no-print{display:none}button{display:none}}
+      table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:11px}
+      th{background:#3D5A73;color:#fff;padding:5px 8px;text-align:left;font-size:10px}
+      td{padding:5px 8px;border-bottom:1px solid #e8e8e8}
+      .total-box{background:#f7f9f7;border:1.5px solid #3D5A73;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+      .total-box .lbl{font-size:11px;color:#333}
+      .total-box .amt{font-size:18px;font-weight:bold;color:#3D5A73}
+      .terbilang{background:#f7faf7;border:1px dashed #90b090;padding:6px 10px;font-size:10px;color:#555;margin-bottom:14px;font-style:italic}
+      .foot{display:flex;justify-content:space-between;margin-top:24px;font-size:10px}
+      .sign{text-align:center;width:180px}
+      .sign-line{border-top:1px solid #000;padding-top:4px;margin-top:50px}
+      .periode-badge{display:inline-block;background:#E8F0FA;border:1px solid #B8C8D8;padding:1px 8px;border-radius:3px;font-size:10px;color:#3D5A73;font-weight:600}
+      @page{size:9.5in 11in;margin:0}
+      @media print{body{padding:6mm 8mm;width:241.3mm}.no-print{display:none}button{display:none}}
     </style></head><body>
     <div class="header">
       <div>
@@ -3781,27 +4010,28 @@ function cetakKwitansiKomisiKonsumen(id) {
     <title>Kwitansi Komisi ${k.nama}</title>
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:'Courier New',monospace;padding:30px 36px;color:#111;background:#fff;font-size:13px}
-      .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-      .co-name{font-size:16px;font-weight:bold;color:#3D5A73;letter-spacing:1px}
-      .co-sub{font-size:11px;color:#555;margin-top:3px}
-      .kwt-box{border:2px solid #3D5A73;padding:8px 16px;text-align:center;min-width:160px}
-      .kwt-box .label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#555}
-      .kwt-box .no{font-size:14px;font-weight:bold;color:#3D5A73;margin-top:2px}
-      hr.tebal{border:none;border-top:2.5px solid #3D5A73;margin:6px 0 2px}
-      hr.tipis{border:none;border-top:1px solid #000;margin:2px 0 14px}
-      .title{text-align:center;font-size:16px;font-weight:bold;letter-spacing:5px;margin:10px 0 16px;color:#3D5A73}
-      .info-grid{display:grid;grid-template-columns:130px 1fr;gap:3px 10px;font-size:12px;margin-bottom:16px}
+      body{font-family:'Courier New',monospace;padding:6mm 8mm;color:#111;background:#fff;font-size:11px;width:241.3mm;min-height:279.4mm}
+      .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+      .co-name{font-size:13px;font-weight:bold;color:#3D5A73;letter-spacing:1px}
+      .co-sub{font-size:10px;color:#555;margin-top:2px}
+      .kwt-box{border:1.5px solid #3D5A73;padding:5px 12px;text-align:center;min-width:140px}
+      .kwt-box .label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:#555}
+      .kwt-box .no{font-size:12px;font-weight:bold;color:#3D5A73;margin-top:2px}
+      hr.tebal{border:none;border-top:2px solid #3D5A73;margin:4px 0 2px}
+      hr.tipis{border:none;border-top:1px solid #000;margin:2px 0 10px}
+      .title{text-align:center;font-size:13px;font-weight:bold;letter-spacing:4px;margin:8px 0 12px;color:#3D5A73}
+      .info-grid{display:grid;grid-template-columns:120px 1fr;gap:2px 8px;font-size:11px;margin-bottom:12px}
       .info-grid .lbl{color:#555} .info-grid .val{font-weight:500}
-      table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px}
-      th{background:#3D5A73;color:#ffffff;padding:8px 10px;text-align:left;font-size:11px}
-      td{padding:8px 10px;border-bottom:1px solid #e8e8e8}
-      .total-box{background:#f7f9f7;border:1.5px solid #3D5A73;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-      .total-box .lbl{font-size:13px;color:#333} .total-box .amt{font-size:22px;font-weight:bold;color:#3D5A73}
-      .terbilang{background:#f7faf7;border:1px dashed #90b090;padding:8px 12px;font-size:11px;color:#555;margin-bottom:20px;font-style:italic}
-      .foot{display:flex;justify-content:space-between;margin-top:36px;font-size:11px}
-      .sign{text-align:center;width:200px} .sign-line{border-top:1px solid #000;padding-top:5px;margin-top:60px}
-      @media print{body{padding:16px 20px}button{display:none}}
+      table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:11px}
+      th{background:#3D5A73;color:#fff;padding:5px 8px;text-align:left;font-size:10px}
+      td{padding:5px 8px;border-bottom:1px solid #e8e8e8}
+      .total-box{background:#f7f9f7;border:1.5px solid #3D5A73;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+      .total-box .lbl{font-size:11px;color:#333} .total-box .amt{font-size:18px;font-weight:bold;color:#3D5A73}
+      .terbilang{background:#f7faf7;border:1px dashed #90b090;padding:6px 10px;font-size:10px;color:#555;margin-bottom:14px;font-style:italic}
+      .foot{display:flex;justify-content:space-between;margin-top:24px;font-size:10px}
+      .sign{text-align:center;width:180px} .sign-line{border-top:1px solid #000;padding-top:4px;margin-top:50px}
+      @page{size:9.5in 11in;margin:0}
+      @media print{body{padding:6mm 8mm;width:241.3mm}button{display:none}}
     </style></head><body>
     <div class="header">
       <div>
