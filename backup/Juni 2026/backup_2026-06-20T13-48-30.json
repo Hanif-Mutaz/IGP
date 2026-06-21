@@ -100,7 +100,7 @@
       "nama": "Regulator",
       "kategori": "jual",
       "kondisi": "good",
-      "stok": 856,
+      "stok": 900,
       "min": 0,
       "terakhir": "20 Jun 2026",
       "harga": 200000
@@ -110,7 +110,7 @@
       "nama": "Selang",
       "kategori": "jual",
       "kondisi": "good",
-      "stok": 856,
+      "stok": 900,
       "min": 0,
       "terakhir": "20 Jun 2026",
       "harga": 200000
@@ -120,7 +120,7 @@
       "nama": "Sarung",
       "kategori": "sovenir",
       "kondisi": "good",
-      "stok": 740,
+      "stok": 850,
       "min": 0,
       "terakhir": "20 Jun 2026",
       "harga": 10000
@@ -224,246 +224,25 @@
       "kota": "jkt",
       "alamat": "jkt",
       "since": "Apr 2026",
-      "tagihan": 1200000,
+      "tagihan": 0,
       "aktif": true,
       "po": [
-        "PO-2026-001",
-        "PO-2026-003"
+        "PO-2026-001"
       ],
       "riwayatPO": [
         {
           "poId": "PO-2026-001",
           "bundle": 100,
           "tanggal": "20 Jun 2026"
-        },
-        {
-          "poId": "PO-2026-003",
-          "bundle": 15,
-          "tanggal": "21 Jun 2026"
         }
       ],
       "komisiKotor": 500000,
       "komisiBundle": 100,
       "riwayatCair": []
-    },
-    {
-      "id": 1781984232918,
-      "nama": "Konsumen 2",
-      "inisial": "K2",
-      "warna": "#1a2d1e",
-      "warnaTxt": "#5DCAA5",
-      "telp": "123",
-      "kota": "bks",
-      "alamat": "bks",
-      "since": "Apr 2026",
-      "tagihan": 0,
-      "aktif": true,
-      "po": [
-        "PO-2026-002",
-        "PO-2026-004"
-      ],
-      "riwayatPO": [
-        {
-          "poId": "PO-2026-002",
-          "bundle": 8,
-          "tanggal": "20 Jun 2026"
-        },
-        {
-          "poId": "PO-2026-004",
-          "bundle": 21,
-          "tanggal": "1 Jun 2026"
-        }
-      ],
-      "komisiKotor": 40000,
-      "komisiBundle": 8
     }
   ],
   "selectedKonsumen": 1781919939484,
   "poList": [
-    {
-      "id": "PO-2026-004",
-      "konsumenId": 1781984232918,
-      "konsumen": "Konsumen 2",
-      "bundle": 21,
-      "total": 8400000,
-      "sisa": 8400000,
-      "status": "berjalan",
-      "tanggal": "1 Jun 2026",
-      "sesi": 1,
-      "lokasi": "",
-      "sales": "sales 1",
-      "nego": "nego 1",
-      "koor": "Konsumen 2",
-      "coll": "",
-      "kc": "KC 1",
-      "bundleDetail": [
-        {
-          "produk": "Paket 1",
-          "harga": 400000,
-          "qty": 21,
-          "id": 1779977007184
-        }
-      ],
-      "cicilan": [
-        {
-          "n": 1,
-          "jatuh": "Minggu 1 2026",
-          "tagihan": 6720000,
-          "status": "belum"
-        },
-        {
-          "n": 2,
-          "jatuh": "Minggu 2 2026",
-          "tagihan": 1680000,
-          "status": "belum"
-        }
-      ],
-      "splitN1": 1,
-      "rateKomisiSales": 50000,
-      "rateKomisiNego": 15000,
-      "rateKomisiKoor": 5000,
-      "rateKomisiColl": 1500,
-      "rateKomisiKc": 5000,
-      "splitPct1": 60,
-      "splitPct2": 40,
-      "souvenir": [
-        {
-          "nama": "Sarung",
-          "harga": 10000,
-          "qty": 100
-        }
-      ],
-      "totalSouvenir": 1000000
-    },
-    {
-      "id": "PO-2026-003",
-      "konsumenId": 1781919939484,
-      "konsumen": "konsumen 1",
-      "bundle": 15,
-      "total": 6000000,
-      "sisa": 1200000,
-      "status": "berjalan",
-      "tanggal": "21 Jun 2026",
-      "sesi": 1,
-      "lokasi": "",
-      "sales": "sales 1",
-      "nego": "nego 1",
-      "koor": "konsumen 1",
-      "coll": "",
-      "kc": "KC 1",
-      "bundleDetail": [
-        {
-          "produk": "Paket 1",
-          "harga": 400000,
-          "qty": 15,
-          "id": 1779977007184
-        }
-      ],
-      "cicilan": [
-        {
-          "n": 1,
-          "jatuh": "Minggu 1 2026",
-          "tagihan": 4800000,
-          "status": "lunas",
-          "terbayar": 4800000,
-          "sisaTagihan": 0,
-          "collector": "coll 1",
-          "tglBayar": "2026-06-20",
-          "catatan": "",
-          "komisiDiberi": true
-        },
-        {
-          "n": 2,
-          "jatuh": "Minggu 2 2026",
-          "tagihan": 1200000,
-          "status": "belum"
-        }
-      ],
-      "splitN1": 1,
-      "rateKomisiSales": 50000,
-      "rateKomisiNego": 15000,
-      "rateKomisiKoor": 5000,
-      "rateKomisiColl": 1500,
-      "rateKomisiKc": 5000,
-      "splitPct1": 60,
-      "splitPct2": 40,
-      "souvenir": [
-        {
-          "nama": "Sarung",
-          "harga": 10000,
-          "qty": 10
-        }
-      ],
-      "totalSouvenir": 100000,
-      "komisiSalesSplit1Cair": true,
-      "komisiSalesSplit1Nominal": 450000
-    },
-    {
-      "id": "PO-2026-002",
-      "konsumenId": 1781984232918,
-      "konsumen": "Konsumen 2",
-      "bundle": 8,
-      "total": 3200000,
-      "sisa": 0,
-      "status": "lunas",
-      "tanggal": "20 Jun 2026",
-      "sesi": 1,
-      "lokasi": "",
-      "sales": "sales 1",
-      "nego": "nego 1",
-      "koor": "Konsumen 2",
-      "coll": "",
-      "kc": "KC 1",
-      "bundleDetail": [
-        {
-          "produk": "Paket 1",
-          "harga": 400000,
-          "qty": 8,
-          "id": 1779977007184
-        }
-      ],
-      "cicilan": [
-        {
-          "n": 1,
-          "jatuh": "Minggu 1 2026",
-          "tagihan": 2560000,
-          "status": "lunas",
-          "terbayar": 2560000,
-          "sisaTagihan": 0,
-          "collector": "coll 1",
-          "tglBayar": "2026-06-20",
-          "catatan": "",
-          "komisiDiberi": true
-        },
-        {
-          "n": 2,
-          "jatuh": "Minggu 2 2026",
-          "tagihan": 640000,
-          "status": "lunas",
-          "terbayar": 640000,
-          "sisaTagihan": 0,
-          "collector": "coll 1",
-          "tglBayar": "2026-06-20",
-          "catatan": "",
-          "komisiDiberi": true
-        }
-      ],
-      "splitN1": 1,
-      "rateKomisiSales": 50000,
-      "rateKomisiNego": 15000,
-      "rateKomisiKoor": 5000,
-      "rateKomisiColl": 1500,
-      "rateKomisiKc": 5000,
-      "splitPct1": 60,
-      "splitPct2": 40,
-      "komisiSalesSplit1Cair": true,
-      "komisiSalesSplit1Nominal": 240000,
-      "komisiSalesSplit2Cair": true,
-      "komisiSalesSplit2Nominal": 160000,
-      "komisiNegoCair": true,
-      "komisiKcCair": true,
-      "komisiKoorDiberi": true
-    },
     {
       "id": "PO-2026-001",
       "konsumenId": 1781919939484,
@@ -575,7 +354,7 @@
       "komisiKoorDiberi": true
     }
   ],
-  "selectedPO": "PO-2026-003",
+  "selectedPO": "PO-2026-001",
   "entitas": [
     {
       "id": 1781919960634,
@@ -585,9 +364,9 @@
       "warna": "#1a2a3a",
       "warnaTxt": "#5DCAA5",
       "peran": "Sales",
-      "bundle": 144,
-      "komisiKotor": 4750000,
-      "pengeluaran": 2600000,
+      "bundle": 100,
+      "komisiKotor": 5000000,
+      "pengeluaran": 1500000,
       "aktif": "Jun 2026",
       "aktifStatus": true,
       "telp": "123",
@@ -601,24 +380,6 @@
           "tipe": "souvenir",
           "poId": "PO-2026-001",
           "tanggal": "20 Jun 2026"
-        },
-        {
-          "id": 1781984434416.4827,
-          "jenis": "Souvenir",
-          "ket": "Souvenir PO PO-2026-003 — Sarung ×10",
-          "jml": 100000,
-          "tipe": "souvenir",
-          "poId": "PO-2026-003",
-          "tanggal": "21 Jun 2026"
-        },
-        {
-          "id": 1781984474096.946,
-          "jenis": "Souvenir",
-          "ket": "Souvenir PO PO-2026-004 — Sarung ×100",
-          "jml": 1000000,
-          "tipe": "souvenir",
-          "poId": "PO-2026-004",
-          "tanggal": "1 Jun 2026"
         }
       ],
       "riwayatPO": [
@@ -627,24 +388,6 @@
           "bundle": 100,
           "tanggal": "20 Jun 2026",
           "konsumen": "konsumen 1"
-        },
-        {
-          "poId": "PO-2026-002",
-          "bundle": 8,
-          "tanggal": "20 Jun 2026",
-          "konsumen": "Konsumen 2"
-        },
-        {
-          "poId": "PO-2026-003",
-          "bundle": 15,
-          "tanggal": "21 Jun 2026",
-          "konsumen": "konsumen 1"
-        },
-        {
-          "poId": "PO-2026-004",
-          "bundle": 21,
-          "tanggal": "1 Jun 2026",
-          "konsumen": "Konsumen 2"
         }
       ],
       "sovenirLog": [
@@ -659,30 +402,6 @@
             }
           ],
           "tanggal": "20 Jun 2026"
-        },
-        {
-          "poId": "PO-2026-003",
-          "total": 100000,
-          "detail": [
-            {
-              "nama": "Sarung",
-              "harga": 10000,
-              "qty": 10
-            }
-          ],
-          "tanggal": "21 Jun 2026"
-        },
-        {
-          "poId": "PO-2026-004",
-          "total": 1000000,
-          "detail": [
-            {
-              "nama": "Sarung",
-              "harga": 10000,
-              "qty": 100
-            }
-          ],
-          "tanggal": "1 Jun 2026"
         }
       ],
       "riwayatCair": [
@@ -707,8 +426,8 @@
       "warna": "#1a2a3a",
       "warnaTxt": "#6AB4EC",
       "peran": "Nego",
-      "bundle": 144,
-      "komisiKotor": 1620000,
+      "bundle": 100,
+      "komisiKotor": 1500000,
       "pengeluaran": 0,
       "aktif": "Jun 2026",
       "aktifStatus": true,
@@ -722,30 +441,9 @@
           "tanggal": "20 Jun 2026",
           "konsumen": "konsumen 1",
           "komisiPending": 1500000
-        },
-        {
-          "poId": "PO-2026-002",
-          "bundle": 8,
-          "tanggal": "20 Jun 2026",
-          "konsumen": "Konsumen 2",
-          "komisiPending": 120000
-        },
-        {
-          "poId": "PO-2026-003",
-          "bundle": 15,
-          "tanggal": "21 Jun 2026",
-          "konsumen": "konsumen 1",
-          "komisiPending": 225000
-        },
-        {
-          "poId": "PO-2026-004",
-          "bundle": 21,
-          "tanggal": "1 Jun 2026",
-          "konsumen": "Konsumen 2",
-          "komisiPending": 315000
         }
       ],
-      "komisiPending": 540000,
+      "komisiPending": 0,
       "riwayatCair": [
         {
           "tanggal": "20 Jun 2026",
@@ -763,7 +461,7 @@
       "warnaTxt": "#5DCAA5",
       "peran": "Collector",
       "bundle": 0,
-      "komisiKotor": 796500,
+      "komisiKotor": 750000,
       "pengeluaran": 0,
       "aktif": "Jun 2026",
       "aktifStatus": true,
@@ -787,8 +485,8 @@
       "warna": "#1a2a3a",
       "warnaTxt": "#5DCAA5",
       "peran": "Kepala Cabang",
-      "bundle": 144,
-      "komisiKotor": 540000,
+      "bundle": 100,
+      "komisiKotor": 500000,
       "pengeluaran": 0,
       "aktif": "Jun 2026",
       "aktifStatus": true,
@@ -802,30 +500,9 @@
           "tanggal": "20 Jun 2026",
           "konsumen": "konsumen 1",
           "komisiPending": 500000
-        },
-        {
-          "poId": "PO-2026-002",
-          "bundle": 8,
-          "tanggal": "20 Jun 2026",
-          "konsumen": "Konsumen 2",
-          "komisiPending": 40000
-        },
-        {
-          "poId": "PO-2026-003",
-          "bundle": 15,
-          "tanggal": "21 Jun 2026",
-          "konsumen": "konsumen 1",
-          "komisiPending": 75000
-        },
-        {
-          "poId": "PO-2026-004",
-          "bundle": 21,
-          "tanggal": "1 Jun 2026",
-          "konsumen": "Konsumen 2",
-          "komisiPending": 105000
         }
       ],
-      "komisiPending": 180000,
+      "komisiPending": 0,
       "riwayatCair": [
         {
           "tanggal": "20 Jun 2026",
@@ -861,78 +538,6 @@
     }
   ],
   "auditLog": [
-    {
-      "ts": "2026-06-20T19:41:14.097Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.41",
-      "msg": "Buat PO PO-2026-004 konsumen Konsumen 2"
-    },
-    {
-      "ts": "2026-06-20T19:40:44.438Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.40",
-      "msg": "Bayar termin 1 PO PO-2026-003: Rp 4.800.000 (Lunas)"
-    },
-    {
-      "ts": "2026-06-20T19:40:44.437Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.40",
-      "msg": "Komisi Sales sales 1 cair 60% PO PO-2026-003: Rp 450.000"
-    },
-    {
-      "ts": "2026-06-20T19:40:34.416Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.40",
-      "msg": "Buat PO PO-2026-003 konsumen konsumen 1"
-    },
-    {
-      "ts": "2026-06-20T19:38:17.574Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.38",
-      "msg": "Bayar termin 2 PO PO-2026-002: Rp 640.000 (Lunas)"
-    },
-    {
-      "ts": "2026-06-20T19:38:17.573Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.38",
-      "msg": "Komisi Sales sales 1 cair 40% PO PO-2026-002: Rp 160.000"
-    },
-    {
-      "ts": "2026-06-20T19:38:10.882Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.38",
-      "msg": "Bayar termin 1 PO PO-2026-002: Rp 2.560.000 (Lunas)"
-    },
-    {
-      "ts": "2026-06-20T19:38:10.881Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.38",
-      "msg": "Komisi Sales sales 1 cair 60% PO PO-2026-002: Rp 240.000"
-    },
-    {
-      "ts": "2026-06-20T19:37:58.789Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.37",
-      "msg": "Cetak PO PO-2026-002"
-    },
-    {
-      "ts": "2026-06-20T19:37:54.998Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.37",
-      "msg": "Buat PO PO-2026-002 konsumen Konsumen 2"
-    },
-    {
-      "ts": "2026-06-20T19:37:13.655Z",
-      "tgl": "20 Jun 2026",
-      "jam": "02.37",
-      "msg": "Tambah konsumen: Konsumen 2"
-    },
-    {
-      "ts": "2026-06-20T13:48:30.824Z",
-      "tgl": "20 Jun 2026",
-      "jam": "20.48",
-      "msg": "Auto-backup harian"
-    },
     {
       "ts": "2026-06-20T01:52:50.485Z",
       "tgl": "20 Jun 2026",
@@ -1102,7 +707,7 @@
       "msg": "Tambah konsumen: konsumen 1"
     }
   ],
-  "nextPONum": 5,
+  "nextPONum": 2,
   "nextInvId": 7,
   "nextRiwayatId": 7,
   "bundleRows": [

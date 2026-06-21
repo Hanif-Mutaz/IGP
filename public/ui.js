@@ -1553,14 +1553,30 @@ function renderEntitasDetail(id, periodeFilter) {
   document.getElementById('entitas-detail-body').innerHTML = `
     <div class="stat-grid-3">
       <div class="stat-card"><div class="stat-label">Komisi kotor${periode !== 'semua' ? ` (${periodeLabel})` : ''}</div><div class="stat-val" style="color:#5DCAA5">${fmtRp(komisiPeriode)}</div></div>
-      <div class="stat-card"><div class="stat-label">Komisi bersih</div><div class="stat-val" style="color:${(komisiPeriode - pengeluaranPeriode) < 0 ? '#F09595' : '#5DCAA5'}">${fmtRp(komisiPeriode - pengeluaranPeriode)}</div></div>
+      <div class="stat-card">
+        <div class="stat-label" id="label-bersih-${e.id}" style="color:var(--text4)">
+          ${(() => { const _b = komisiPeriode - pengeluaranPeriode; const _sd = e.pengeluaranDipotong || 0; const _tp = (e.pengeluaranList || []).reduce((s, p) => s + (p.jml || 0), 0); return (_b < 0 && _tp > _sd) ? '\u26a0\ufe0f Kasbon / Hutang' : 'Komisi bersih'; })()}
+        </div>
+        <div class="stat-val" style="color:${(komisiPeriode - pengeluaranPeriode) < 0 ? '#F09595' : '#5DCAA5'}">${fmtRp(komisiPeriode - pengeluaranPeriode)}</div>
+        ${(() => { const _b = komisiPeriode - pengeluaranPeriode; const _sd = e.pengeluaranDipotong || 0; const _tp = (e.pengeluaranList || []).reduce((s, p) => s + (p.jml || 0), 0); return (_b < 0 && _tp > _sd) ? '<div style="font-size:10px;color:#F09595;margin-top:3px">Akan dipotong saat cairkan</div>' : ''; })()}
+      </div>
       <div class="stat-card"><div class="stat-label">Belum dicairkan</div><div class="stat-val" style="color:${komisiOutstanding > 0 ? '#FAC775' : (komisiOutstanding < 0 ? '#F09595' : '#5DCAA5')}">${komisiOutstanding !== 0 ? fmtRp(komisiOutstanding) : '—'}</div></div>
     </div>
     ${komisiPending > 0 ? `<div style="margin-top:8px;padding:8px 12px;background:#0a1500;border-radius:6px;border:0.5px solid #2a3000;font-size:12px;color:var(--text4)">⏳ Menunggu PO lunas: <strong style="color:#FAC775">${fmtRpFull(komisiPending)}</strong> — akan cair otomatis saat PO terkait lunas</div>` : ''}
     ${(e.riwayatCair || []).length ? `
     <div style="margin-top:10px;padding:10px 12px;background:var(--bg2);border-radius:8px;border:0.5px solid var(--border)">
       <div style="font-size:11px;color:var(--text4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Riwayat pencairan komisi</div>
-      ${(e.riwayatCair || []).map(rc => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--border2)"><span style="color:var(--text4)">${rc.tanggal}</span><span style="color:#5DCAA5;font-weight:500">${fmtRpFull(rc.jumlah)}</span></div>`).join('')}
+      ${(e.riwayatCair || []).map((rc, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:0.5px solid var(--border2)">
+          <div>
+            <div style="color:var(--text4)">${rc.tanggal}</div>
+            ${rc.keterangan ? `<div style="font-size:10px;color:var(--text4);margin-top:1px">${rc.keterangan}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="color:#5DCAA5;font-weight:500">${fmtRpFull(rc.jumlah)}</span>
+            <button class="btn" style="font-size:10px;padding:2px 8px" onclick="cetakKwitansiKomisi(${e.id}, ${i})">\ud83e\uddfe Kwitansi</button>
+          </div>
+        </div>`).join('')}
     </div>` : ''}
     <div class="card">
       <div class="card-title">Konfigurasi komisi</div>
