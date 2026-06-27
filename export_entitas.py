@@ -326,9 +326,38 @@ def build_sales_nego_sheet(wb, entitas, peran, po_list, settings, periode_label,
     merge(ws, R_H1, COL_TOTAL_MINUS, R_H3, COL_TOTAL_MINUS)
 
     # ── Helper: sold & retur per produk dari satu PO ──
-    # Buat lookup bundleDef by nama untuk resolusi komponen
-    _bdef_map = {bd.get('nama', ''): bd for bd in (bundle_def or [])}
-    _prod_set  = set(prod_names)
+    # Buat lookup bundleDef by nama (exact) dan by id untuk resolusi komponen
+    _bdef_by_name = {bd.get('nama', ''): bd for bd in (bundle_def or [])}
+    _bdef_by_id   = {str(bd.get('id', '')): bd for bd in (bundle_def or [])}
+    _prod_set      = set(prod_names)
+
+    def _find_bdef(bundle_nm, bundle_id=''):
+        """Cari bundleDef dengan: (1) id match, (2) exact name, (3) normalized name."""
+        if bundle_id and str(bundle_id) in _bdef_by_id:
+            return _bdef_by_id[str(bundle_id)]
+        if bundle_nm in _bdef_by_name:
+            return _bdef_by_name[bundle_nm]
+        # Fuzzy: normalisasi spasi dan case
+        nm_norm = ' '.join(bundle_nm.lower().split())
+        for key, bdef in _bdef_by_name.items():
+            if ' '.join(key.lower().split()) == nm_norm:
+                return bdef
+        return None
+
+    def _expand_komponen(bdef, bundle_qty, result):
+        """Expand komponen dari bdef ke result dict."""
+        komponen = (bdef.get('komponen') or []) if bdef else []
+        if komponen:
+            for k in komponen:
+                nm = k.get('nama', '') or k.get('itemNama', '')
+                qty_per = rp(k.get('qty', 1)) or 1
+                matched = nm if nm in _prod_set else next(
+                    (p for p in prod_names if p.lower() == nm.lower()), None
+                )
+                if matched:
+                    result[matched] = result.get(matched, 0) + bundle_qty * qty_per
+            return True
+        return False
 
     def po_prod_qty(po):
         """
@@ -344,21 +373,12 @@ def build_sales_nego_sheet(wb, entitas, peran, po_list, settings, periode_label,
         for bd in bd_list:
             bundle_nm  = bd.get('produk', '') or bd.get('nama', '')
             bundle_qty = rp(bd.get('qty', 0))
-            bdef       = _bdef_map.get(bundle_nm)
-            komponen   = (bdef.get('komponen') or []) if bdef else []
+            bundle_id  = bd.get('id', '')
+            bdef       = _find_bdef(bundle_nm, bundle_id)
 
-            if komponen:
-                # Expand ke tiap komponen
-                for k in komponen:
-                    nm = k.get('nama', '') or k.get('itemNama', '')
-                    qty_per = rp(k.get('qty', 1)) or 1
-                    matched = nm if nm in _prod_set else next(
-                        (p for p in prod_names if p.lower() == nm.lower()), None
-                    )
-                    if matched:
-                        result[matched] = result.get(matched, 0) + bundle_qty * qty_per
-            else:
-                # Bundle tanpa komponen: nama bundle sendiri
+            expanded = _expand_komponen(bdef, bundle_qty, result)
+            if not expanded:
+                # Bundle tanpa komponen: coba match nama bundle ke prod_names
                 matched = bundle_nm if bundle_nm in _prod_set else next(
                     (p for p in prod_names
                      if p.lower() in bundle_nm.lower() or bundle_nm.lower() in p.lower()), None
@@ -366,9 +386,18 @@ def build_sales_nego_sheet(wb, entitas, peran, po_list, settings, periode_label,
                 if matched:
                     result[matched] = result.get(matched, 0) + bundle_qty
 
-        # Fallback: bundleDetail kosong tapi ada bundle total
-        if not result and prod_names and rp(po.get('bundle', 0)) > 0:
-            result[prod_names[0]] = rp(po.get('bundle', 0))
+        # Fallback: bundleDetail kosong tapi ada bundle total di field po.bundle
+        if not result and rp(po.get('bundle', 0)) > 0:
+            bundle_total = rp(po.get('bundle', 0))
+            # Coba expand dari semua bundleDef yang aktif (ambil yang pertama aktif)
+            fallback_bdef = next(
+                (b for b in (bundle_def or []) if b.get('aktif', True)), None
+            )
+            if fallback_bdef:
+                _expand_komponen(fallback_bdef, bundle_total, result)
+            elif prod_names:
+                # Last resort: assign ke prod pertama saja
+                result[prod_names[0]] = bundle_total
         return result
 
     def po_retur_qty(po):
@@ -625,13 +654,19 @@ def build_global_monitoring_sheet(wb, db, periode_label):
     # Konversi ke YYYY-MM-DD agar bisa di-sort dan di-match
     BULAN_RAW_MAP = {
         'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mei': 5, 'Jun': 6,
-        'Jul': 7, 'Agu': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Des': 12
+        'Jul': 7, 'Agu': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Des': 12,
+        # alias panjang & kapital
+        'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4,
+        'Juni': 6, 'Juli': 7, 'Agustus': 8, 'September': 9,
+        'Oktober': 10, 'November': 11, 'Desember': 12,
     }
     def tgl_to_raw(tgl_str):
-        """Konversi 'DD Mon YYYY' → 'YYYY-MM-DD'"""
+        """Konversi 'DD Mon YYYY' → 'YYYY-MM-DD' (case-insensitive, semua alias)"""
         parts = str(tgl_str).strip().split()
         if len(parts) == 3:
-            bln = BULAN_RAW_MAP.get(parts[1])
+            # Normalize: title case agar MEI→Mei, JUN→Jun, JUNI→Juni
+            bln_key = parts[1].capitalize()
+            bln = BULAN_RAW_MAP.get(bln_key) or BULAN_RAW_MAP.get(parts[1])
             if bln:
                 try:
                     return f'{int(parts[2]):04d}-{bln:02d}-{int(parts[0]):02d}'

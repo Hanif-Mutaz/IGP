@@ -101,12 +101,24 @@ app.post('/api/export/entitas', (req, res) => {
     'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
   };
   const BULAN_ABR = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  // Alias bulan panjang dan semua kapital (MEI, JUN, JUNI, dll)
+  const BULAN_ALIAS = {
+    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mei': 5, 'Jun': 6, 'Jul': 7, 'Agu': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Des': 12,
+    'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Juni': 6, 'Juli': 7, 'Agustus': 8,
+    'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
+  };
+  function parseBulan(str) {
+    if (!str) return -1;
+    // title-case dulu: MEI→Mei, JUNI→Juni
+    const tc = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    return BULAN_ALIAS[tc] || BULAN_ALIAS[str] || -1;
+  }
 
   function matchTgl(tgl, bNum, tNum) {
     if (!tgl) return false;
     const parts = tgl.split(' ');
     if (parts.length === 3) {
-      const m = BULAN_ABR.indexOf(parts[1]);
+      const m = parseBulan(parts[1]);
       const y = parseInt(parts[2]);
       if (bNum && tNum) return m === bNum && y === tNum;
       if (tNum) return y === tNum;
@@ -149,6 +161,13 @@ app.post('/api/export/entitas', (req, res) => {
       ...e, riwayatPO: (e.riwayatPO || []).filter(r => poIds.has(r.po || r.poId))
     }));
   }
+
+  // DEBUG
+  const _dbgPOs = (filteredDB.pos || []).slice(0, 5);
+  console.log('[DEBUG] bundleDef:', JSON.stringify(filteredDB.bundleDef || [], null, 2));
+  _dbgPOs.forEach((po, i) => {
+    console.log('[DEBUG] PO[' + i + '] konsumen=' + po.konsumen + ' bundleDetail=' + JSON.stringify(po.bundleDetail || []) + ' bundle=' + po.bundle);
+  });
 
   const payload = JSON.stringify({
     db: filteredDB,
@@ -248,12 +267,22 @@ app.post('/api/export/pdf', (req, res) => {
     'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
   };
   const BULAN_ABR = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const BULAN_ALIAS2 = {
+    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mei': 5, 'Jun': 6, 'Jul': 7, 'Agu': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Des': 12,
+    'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Juni': 6, 'Juli': 7, 'Agustus': 8,
+    'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
+  };
+  function parseBulan2(str) {
+    if (!str) return -1;
+    const tc = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    return BULAN_ALIAS2[tc] || BULAN_ALIAS2[str] || -1;
+  }
 
   function matchTgl(tgl, bNum, tNum) {
     if (!tgl) return false;
     const parts = tgl.split(' ');
     if (parts.length === 3) {
-      const m = BULAN_ABR.indexOf(parts[1]);
+      const m = parseBulan2(parts[1]);
       const y = parseInt(parts[2]);
       if (bNum && tNum) return m === bNum && y === tNum;
       if (tNum) return y === tNum;

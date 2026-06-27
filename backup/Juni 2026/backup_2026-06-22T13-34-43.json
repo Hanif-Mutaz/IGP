@@ -3258,7 +3258,7 @@
       "total": 500000,
       "sisa": 500000,
       "status": "telat",
-      "tanggal": "20 Mei 2026",
+      "tanggal": "20 MEI 2026",
       "sesi": 1,
       "lokasi": "",
       "sales": "ROSMANIA ( MIA )",
@@ -3773,7 +3773,7 @@
       "totalSouvenir": 238000
     }
   ],
-  "selectedPO": "PO-2026-009",
+  "selectedPO": "PO-2026-014",
   "entitas": [
     {
       "id": 1781953717381,
@@ -5534,108 +5534,6 @@
     }
   ],
   "auditLog": [
-    {
-      "ts": "2026-06-23T12:13:40.772Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.13",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 2026"
-    },
-    {
-      "ts": "2026-06-23T12:13:26.701Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.13",
-      "msg": "Edit tanggal PO PO-2026-009: 23 Jun 2026"
-    },
-    {
-      "ts": "2026-06-23T12:13:09.738Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.13",
-      "msg": "Edit tanggal PO PO-2026-009: 2 Mei 1902"
-    },
-    {
-      "ts": "2026-06-23T12:13:04.426Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.13",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 1902"
-    },
-    {
-      "ts": "2026-06-23T12:07:02.165Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.07",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 2026"
-    },
-    {
-      "ts": "2026-06-23T12:06:44.693Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.06",
-      "msg": "Edit tanggal PO PO-2026-009: 2 Jun 2026"
-    },
-    {
-      "ts": "2026-06-23T12:06:31.294Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.06",
-      "msg": "Edit tanggal PO PO-2026-009: 23 Jun 2026"
-    },
-    {
-      "ts": "2026-06-23T12:06:21.667Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.06",
-      "msg": "Edit tanggal PO PO-2026-009: 26 Mei 1902"
-    },
-    {
-      "ts": "2026-06-23T12:06:18.059Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.06",
-      "msg": "Edit tanggal PO PO-2026-009: 26 Mei 1901"
-    },
-    {
-      "ts": "2026-06-23T12:06:14.662Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.06",
-      "msg": "Edit tanggal PO PO-2026-009: 26 Feb 1901"
-    },
-    {
-      "ts": "2026-06-23T12:06:04.052Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.06",
-      "msg": "Edit tanggal PO PO-2026-009: 2 Feb 1901"
-    },
-    {
-      "ts": "2026-06-23T12:05:59.827Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.05",
-      "msg": "Edit tanggal PO PO-2026-009: 2 Feb 1902"
-    },
-    {
-      "ts": "2026-06-23T12:05:54.538Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.05",
-      "msg": "Edit tanggal PO PO-2026-009: 2 Mei 1902"
-    },
-    {
-      "ts": "2026-06-23T12:05:48.498Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.05",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 1902"
-    },
-    {
-      "ts": "2026-06-23T12:05:41.924Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.05",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 1903"
-    },
-    {
-      "ts": "2026-06-23T12:05:36.254Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.05",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 1902"
-    },
-    {
-      "ts": "2026-06-23T12:05:31.447Z",
-      "tgl": "23 Jun 2026",
-      "jam": "19.05",
-      "msg": "Edit tanggal PO PO-2026-009: 20 Mei 1902"
-    },
     {
       "ts": "2026-06-22T09:53:06.408Z",
       "tgl": "22 Jun 2026",

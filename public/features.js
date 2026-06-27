@@ -1630,7 +1630,7 @@ function initBuatPO() {
     const nextWeekFmt = formatDateShort(nextWeek.toISOString().split('T')[0]);
 
     const tglEl = document.getElementById('po-tanggal');
-    if (tglEl) tglEl.value = todayFmt;
+    if (tglEl) tglEl.value = todayISO; // type=date butuh YYYY-MM-DD
     const mulaiEl = document.getElementById('po-mulai-cicilan');
     if (mulaiEl) mulaiEl.value = nextWeekFmt;
 
@@ -1977,8 +1977,8 @@ function submitBuatPO() {
     const kcNama = (kcSelectEl && kcSelectEl.style.display !== 'none')
         ? kcSelectEl.value
         : (kcDisplayEl?.textContent || '');
-    const tanggalInput = document.getElementById('po-tanggal')?.value?.trim();
-    const tanggal = tanggalInput || formatDateShort(new Date().toISOString().split('T')[0]);
+    const tanggalRaw = document.getElementById('po-tanggal')?.value?.trim();
+    const tanggal = tanggalRaw ? formatDateShort(tanggalRaw) : formatDateShort(new Date().toISOString().split('T')[0]);
     const nRaw = parseInt(document.getElementById('po-n-cicilan')?.value) || 7;
     const n = Math.max(1, Math.min(24, nRaw));
     const mulai = document.getElementById('po-mulai-cicilan')?.value || '';
@@ -4272,6 +4272,186 @@ function openLossModal(poId) {
 
 function openLossFromPO(poId) {
     openLossModal(poId);
+}
+
+// ============================================================
+// MENINGGAL — Konsumen meninggal: hapus sisa tagihan, kurangi bundle & komisi
+// ============================================================
+
+function initMeninggalOptions() {
+    const sel = document.getElementById('meninggal-po');
+    if (!sel) return;
+    const activePO = (DB.poList || []).filter(p => p.status !== 'retur');
+    sel.innerHTML = activePO.map(p =>
+        `<option value="${p.id}">${p.id} \u2013 ${p.konsumen} (${p.bundle} bundle)</option>`
+    ).join('');
+    document.getElementById('meninggal-jumlah').value = 1;
+    document.getElementById('meninggal-keterangan').value = '';
+    const prev = document.getElementById('meninggal-preview');
+    if (prev) prev.style.display = 'none';
+    onMeninggalPOChange();
+}
+
+function openMeninggalFromPO(poId) {
+    initMeninggalOptions();
+    const sel = document.getElementById('meninggal-po');
+    if (sel && poId) sel.value = poId;
+    onMeninggalPOChange();
+    openModal('modal-meninggal');
+}
+
+function onMeninggalPOChange() {
+    const poId = document.getElementById('meninggal-po')?.value;
+    if (!poId) return;
+    const po = DB.poList.find(p => p.id === poId);
+    if (!po) return;
+    const nilaiPerBundle = po.bundle > 0 ? Math.round(po.total / po.bundle) : 0;
+    const el = document.getElementById('meninggal-nilai');
+    if (el) el.value = fmtRpFull(nilaiPerBundle);
+    const jmlEl = document.getElementById('meninggal-jumlah');
+    if (jmlEl) jmlEl.max = po.bundle;
+    onMeninggalCalc();
+}
+
+function onMeninggalCalc() {
+    const poId = document.getElementById('meninggal-po')?.value;
+    if (!poId) return;
+    const po = DB.poList.find(p => p.id === poId);
+    if (!po) return;
+    const jml = parseInt(document.getElementById('meninggal-jumlah')?.value) || 0;
+    const nilaiPerBundle = po.bundle > 0 ? Math.round(po.total / po.bundle) : 0;
+    const tagihanDihapus = nilaiPerBundle * jml;
+    const bundleSetelah = Math.max(0, po.bundle - jml);
+
+    const prev = document.getElementById('meninggal-preview');
+    if (prev) prev.style.display = 'block';
+    const elBundle = document.getElementById('meninggal-prev-bundle');
+    const elTagihan = document.getElementById('meninggal-prev-tagihan');
+    const elSisa = document.getElementById('meninggal-prev-sisa');
+    if (elBundle) elBundle.textContent = `${po.bundle} \u2192 ${bundleSetelah}`;
+    if (elTagihan) elTagihan.textContent = fmtRpFull(tagihanDihapus);
+    if (elSisa) elSisa.textContent = fmtRpFull(Math.max(0, po.sisa - tagihanDihapus));
+}
+
+function submitMeninggal() {
+    const poId = document.getElementById('meninggal-po')?.value;
+    if (!poId) { toast('Pilih PO terlebih dahulu', 'error'); return; }
+    const po = DB.poList.find(p => p.id === poId);
+    if (!po) { toast('PO tidak ditemukan', 'error'); return; }
+
+    const jml = parseInt(document.getElementById('meninggal-jumlah')?.value) || 0;
+    const keterangan = document.getElementById('meninggal-keterangan')?.value.trim() || '';
+    if (jml <= 0) { toast('Jumlah bundle tidak valid', 'error'); return; }
+    if (jml > po.bundle) { toast(`Jumlah (${jml}) melebihi bundle PO (${po.bundle})`, 'error'); return; }
+
+    const nilaiPerBundle = po.bundle > 0 ? Math.round(po.total / po.bundle) : 0;
+    const tagihanDihapus = nilaiPerBundle * jml;
+    const bundleLama = po.bundle;
+    const bundleSetelah = Math.max(0, bundleLama - jml);
+    const totalBaru = Math.max(0, po.total - tagihanDihapus);
+    const isFullMeninggal = bundleSetelah === 0;
+
+    if (!confirm(
+        `Konfirmasi: ${jml} bundle dari PO ${poId} ditandai MENINGGAL?\n\n` +
+        `Tagihan dihapus: ${fmtRpFull(tagihanDihapus)}\n` +
+        `Bundle: ${bundleLama} \u2192 ${bundleSetelah}\n` +
+        (keterangan ? `Ket: ${keterangan}\n` : '') +
+        `\nBarang TIDAK dikembalikan. Komisi dikurangi.\n` +
+        `Aksi ini tidak bisa dibatalkan.`
+    )) return;
+
+    const today = formatDateShort(new Date().toISOString().split('T')[0]);
+
+    // 1. Kurangi bundle & total PO
+    po.bundle = bundleSetelah;
+    po.total = totalBaru;
+    if (po.bundleDetail && bundleLama > 0 && bundleSetelah > 0) {
+        po.bundleDetail.forEach(bd => {
+            bd.qty = Math.max(1, Math.round((bd.qty || 1) * bundleSetelah / bundleLama));
+        });
+    }
+
+    // 2. Kurangi cicilan yang BELUM lunas saja
+    const cicilanBelum = po.cicilan.filter(c => c.status !== 'lunas' && c.status !== 'batal');
+    const totalBelum = cicilanBelum.reduce((s, c) => s + (c.tagihan - (c.terbayar || 0)), 0);
+    let sisaPengurangan = Math.min(tagihanDihapus, totalBelum);
+    if (sisaPengurangan > 0 && cicilanBelum.length > 0) {
+        cicilanBelum.forEach((c, idx) => {
+            if (sisaPengurangan <= 0) return;
+            const sisaC = c.tagihan - (c.terbayar || 0);
+            const sisa_len = cicilanBelum.length - idx;
+            const kurang = Math.min(sisaC, idx === cicilanBelum.length - 1 ? sisaPengurangan : Math.round(sisaPengurangan / sisa_len));
+            c.tagihan = Math.max(0, c.tagihan - kurang);
+            c.sisaTagihan = Math.max(0, c.tagihan - (c.terbayar || 0));
+            sisaPengurangan -= kurang;
+            if (c.tagihan === 0) c.status = 'batal';
+            else if ((c.terbayar || 0) >= c.tagihan) { c.status = 'lunas'; c.sisaTagihan = 0; }
+        });
+    }
+
+    // 3. Hitung ulang sisa PO
+    po.sisa = po.cicilan
+        .filter(c => c.status !== 'lunas' && c.status !== 'batal')
+        .reduce((s, c) => s + (c.tagihan - (c.terbayar || 0)), 0);
+    const semuaSelesai = po.cicilan.filter(c => c.status !== 'batal').every(c => c.status === 'lunas');
+    if (semuaSelesai) { po.status = 'lunas'; po.sisa = 0; }
+    else if (isFullMeninggal) po.status = 'meninggal';
+
+    const kons = DB.konsumen.find(k => k.id === po.konsumenId || k.nama === po.konsumen);
+    if (kons) kons.tagihan = Math.max(0, (kons.tagihan || 0) - tagihanDihapus);
+
+    // 4. Kurangi komisi TANPA beban ke sales
+    if (jml > 0) {
+        const salesEnt = DB.entitas.find(e => e.peran === 'Sales' && e.nama === po.sales);
+        if (salesEnt) {
+            const potSales = Math.round((po.rateKomisiSales || DB.settings?.komisi_sales || 1150000) * jml);
+            salesEnt.komisiKotor = Math.max(0, (salesEnt.komisiKotor || 0) - potSales);
+            salesEnt.bundle = Math.max(0, (salesEnt.bundle || 0) - jml);
+        }
+        const negoEnt = DB.entitas.find(e => e.peran === 'Nego' && e.nama === po.nego);
+        if (negoEnt) {
+            const potNego = Math.round((po.rateKomisiNego || DB.settings?.komisi_nego || 300000) * jml);
+            if (po.komisiNegoCair) negoEnt.komisiKotor = Math.max(0, (negoEnt.komisiKotor || 0) - potNego);
+            else negoEnt.komisiPending = Math.max(0, (negoEnt.komisiPending || 0) - potNego);
+            negoEnt.bundle = Math.max(0, (negoEnt.bundle || 0) - jml);
+        }
+        const kcEnt = DB.entitas.find(e => e.peran === 'Kepala Cabang' && e.nama === po.kc);
+        if (kcEnt) {
+            const potKc = Math.round((po.rateKomisiKc || DB.settings?.komisi_kc || 5000) * jml);
+            if (po.komisiKcCair) kcEnt.komisiKotor = Math.max(0, (kcEnt.komisiKotor || 0) - potKc);
+            else kcEnt.komisiPending = Math.max(0, (kcEnt.komisiPending || 0) - potKc);
+            kcEnt.bundle = Math.max(0, (kcEnt.bundle || 0) - jml);
+        }
+        po.cicilan.forEach(c => {
+            if (c.komisiDiberi) {
+                const collEnt = DB.entitas.find(e => e.peran === 'Collector' && e.nama === (c.collector || po.coll));
+                if (collEnt) {
+                    const rateC = collEnt.komisiRate || DB.settings?.komisi_coll || 1500;
+                    collEnt.komisiKotor = Math.max(0, (collEnt.komisiKotor || 0) - (rateC * jml));
+                }
+            }
+        });
+    }
+
+    // 5. Log meninggal
+    if (!DB.meninggalLog) DB.meninggalLog = [];
+    const logEntry = {
+        id: Date.now(), tanggal: today,
+        po: poId, konsumen: po.konsumen,
+        jumlah: jml, nilaiPerBundle, nilaiTotal: tagihanDihapus,
+        sales: po.sales, nego: po.nego, keterangan
+    };
+    DB.meninggalLog.unshift(logEntry);
+    if (!po.meninggalLog) po.meninggalLog = [];
+    po.meninggalLog.push(logEntry);
+
+    saveDB();
+    closeModal('modal-meninggal');
+    toast(`Meninggal PO ${poId}: ${jml} bundle, tagihan dihapus ${fmtRpFull(tagihanDihapus)}`, 'warn');
+    addAudit(`Meninggal PO ${poId}: ${jml} bundle, tagihan dihapus ${fmtRpFull(tagihanDihapus)}${keterangan ? ' (' + keterangan + ')' : ''}`);
+    renderPOList();
+    renderPODetail(poId);
+    renderEntitasList();
 }
 
 /**

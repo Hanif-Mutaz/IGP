@@ -153,6 +153,7 @@ function navigate(page) {
     actions.innerHTML = `
       <button class="btn" onclick="openModal('modal-retur')">Catat retur</button>
       <button class="btn btn-danger" style="background:#1a1200;border-color:#412402;color:#FAC775" onclick="openLossModal()">&#9888; Catat Loss</button>
+      <button class="btn btn-danger" style="background:#3a0a3a;border-color:#7a1a7a;color:#e0a0e0" onclick="openModal('modal-meninggal')">&#128712; Meninggal</button>
       <button class="btn" onclick="openBuatBundle()">📦 Buat Bundle</button>
       <button class="btn btn-primary" onclick="openModal('modal-barang-masuk')">+ Barang masuk</button>`;
   } else if (page === 'buat-po') {
@@ -1111,6 +1112,7 @@ function renderPODetail(id) {
       <button class="btn" style="font-size:12px;padding:5px 12px;background:#0e2a1a;border-color:#1a6e40;color:#5DCAA5" onclick="openEditBundlePO('${p.id}')">&#9998; Edit Bundle</button>
       <button class="btn btn-danger" style="font-size:12px;padding:5px 12px" onclick="openReturFromPO('${p.id}')">Proses retur</button>
       <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;background:#1a1200;border-color:#412402;color:#FAC775" onclick="openLossFromPO('${p.id}')">&#9888; Catat Loss</button>
+      <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;background:#3a0a3a;border-color:#7a1a7a;color:#e0a0e0" onclick="openMeninggalFromPO('${p.id}')">&#128712; Meninggal</button>
       ${p.status === 'lunas' || p.status === 'retur' ? `<button class="btn btn-danger" style="font-size:12px;padding:5px 12px;opacity:.8" onclick="hapusPO('${p.id}')">Hapus</button>` : ''}
     </div>`;
 
@@ -1176,6 +1178,24 @@ function renderPODetail(id) {
           <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px">
             <span style="color:var(--text4)">Beban ganti rugi Sales</span>
             <strong style="color:#F09595">${fmtRpFull(l.totalBeban || l.bebanSales || 0)}</strong>
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
+  // ── Riwayat Meninggal ──
+  const _meninggalLog = p.meninggalLog || [];
+  const meninggalHistHtml = _meninggalLog.length ? `
+    <div class="card" style="border-color:#7a1a7a">
+      <div class="card-title" style="color:#e0a0e0;margin-bottom:10px">&#128712; Riwayat Meninggal (${_meninggalLog.length} kejadian)</div>
+      ${_meninggalLog.map(m => `
+        <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="color:var(--text2);font-size:13px">${m.keterangan || 'Konsumen meninggal'}</span>
+            <span style="font-size:10px;background:#3a0a3a;color:#e0a0e0;padding:2px 8px;border-radius:4px">${m.jumlah} bundle</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text4)">
+            <span>${m.tanggal}</span>
+            <span style="color:#F09595">Tagihan dihapus: <strong>${fmtRpFull(m.nilaiTotal)}</strong></span>
           </div>
         </div>`).join('')}
     </div>` : '';
@@ -1347,7 +1367,8 @@ function renderPODetail(id) {
         <span style="color:#FAC775">${fmtRpFull(p.totalSouvenir || 0)}</span>
       </div>
     </div>` : ''}
-    ${lossHistHtml}`;
+    ${lossHistHtml}
+    ${meninggalHistHtml}`;
 }
 
 // ============================================================
