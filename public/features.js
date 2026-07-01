@@ -1572,7 +1572,6 @@ function cetakKwitansi(n, poId) {
     <b>Catatan :</b><br>
     1. Simpan kwitansi ini sebagai bukti pembayaran yang sah sampai tanda termin ke-<b>${n}</b><br>
     2. Apabila barang dikembalikan maka uang yang sudah masuk tidak dapat dikembalikan<br>
-    3. Komisi koordinator Rp ${(DB.settings.komisi_koor || 200000).toLocaleString('id-ID')},- / bundle diberikan setelah pelunasan termin ke ${p.cicilan.length} diluar retur dan masalah
   </div>
 
   <!-- ══ TTD ══ -->
